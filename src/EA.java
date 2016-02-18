@@ -73,4 +73,8 @@ public class EA implements EvolutionaryCycle{
     public void setRunning(boolean running) {
         this.running = running;
     }
+
+    public ArrayList<Hypothesis> getHypothesises() {
+        return hypothesises;
+    }
 }

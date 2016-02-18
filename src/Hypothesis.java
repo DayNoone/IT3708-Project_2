@@ -3,14 +3,16 @@ import java.util.List;
 
 public class Hypothesis {
 
-    int bitstring;
+    int[] genotypeBitstring;
     List<Hypothesis> parents = new ArrayList<Hypothesis>();
 
 
-    public Hypothesis(int bitstring, List<Hypothesis> parents){
-        this.bitstring = bitstring;
+    public Hypothesis(int[] genotypeBitstring, List<Hypothesis> parents){
+        this.genotypeBitstring = genotypeBitstring;
         this.parents = parents;
-
+    }
+    public Hypothesis(){
 
     }
+
 }

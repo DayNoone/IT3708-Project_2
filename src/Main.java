@@ -7,10 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -18,9 +15,8 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class Main extends Application{
 
@@ -31,7 +27,7 @@ public class Main extends Application{
     GridPane grid;
     int controlsRowNumber = 1;
 
-
+    Console console;
 
     public void start(Stage primaryStage) throws IOException {
 
@@ -52,12 +48,12 @@ public class Main extends Application{
         outputArea.setEditable(false);
 
         // Console for outputting information without interrupting the evolutionary cycle
-        Console console = new Console(outputArea);
+        console = new Console(outputArea);
 
         //--------------------------------- CONTROLS ---------------------------------
-        Button stopButton = new Button();
-        stopButton.setText("Stop cycle");
-        stopButton.setOnAction(event -> evolutionaryAlgorithmCycle.setRunning(false));
+        Button restartButton = new Button();
+        restartButton.setText("Restart cycle");
+        restartButton.setOnAction(event -> evolutionaryAlgorithmCycle.restartCycle(initializeGeneration()));
 
         Button startButton = new Button();
         startButton.setText("Start cycle");
@@ -82,7 +78,7 @@ public class Main extends Application{
 
         grid.add(scenetitle, 0, 0, 2, 1);
 
-        addControl(stopButton);
+        addControl(restartButton);
         addControl(startButton);
         addControl(finessThresholdLabel);
         addControl(fitnessThresholdSlider);
@@ -105,11 +101,16 @@ public class Main extends Application{
     }
 
     private void startEA() {
+
         eaLoop = new AnimationTimer() {
-            @Override
             public void handle(long now) {
+                ArrayList<Hypothesis> hypothesises;
                 if(evolutionaryAlgorithmCycle.isRunning()){
                     evolutionaryAlgorithmCycle.iteration();
+                    hypothesises = evolutionaryAlgorithmCycle.getHypothesises();
+                    for(Hypothesis hypothesis: hypothesises){
+                        console.writeString(hypothesis.toString() + '\n');
+                    }
                 }
             }
         };
@@ -119,7 +120,11 @@ public class Main extends Application{
 
 
     private ArrayList<Hypothesis> initializeGeneration() {
-        return null;
+        ArrayList<Hypothesis> initialGeneration = new ArrayList<Hypothesis>();
+        for(int i = 0; i < Settings.GENERATION_SIZE; i++){
+            initialGeneration.add(new OneMaxHypothesis());
+        }
+        return initialGeneration;
     }
 
 
