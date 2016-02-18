@@ -1,7 +1,5 @@
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -16,7 +14,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Set;
 
 public class Main extends Application{
 
@@ -91,7 +88,7 @@ public class Main extends Application{
 
         grid.add(outputArea, 1, 1, 1, controlsRowNumber);
 
-        Scene scene = new Scene(grid, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT);
+        Scene scene = new Scene(grid, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -104,24 +101,27 @@ public class Main extends Application{
 
         eaLoop = new AnimationTimer() {
             public void handle(long now) {
-                ArrayList<Hypothesis> hypothesises;
                 if(evolutionaryAlgorithmCycle.isRunning()){
                     evolutionaryAlgorithmCycle.iteration();
-                    hypothesises = evolutionaryAlgorithmCycle.getHypothesises();
-                    for(Hypothesis hypothesis: hypothesises){
-                        console.writeString(hypothesis.toString() + '\n');
+                    if (evolutionaryAlgorithmCycle.getSolution()){
+                        evolutionaryAlgorithmCycle.setRunning(false);
+                        console.writeString("Solution Found");
                     }
                 }
             }
         };
 
         eaLoop.start();
+        ArrayList<Hypothesis> hypothesises = evolutionaryAlgorithmCycle.gethypothesis();
+        for(Hypothesis hypothesis: hypothesises){
+            console.writeString(hypothesis.toString() + '\n');
+        }
     }
 
 
     private ArrayList<Hypothesis> initializeGeneration() {
         ArrayList<Hypothesis> initialGeneration = new ArrayList<Hypothesis>();
-        for(int i = 0; i < Settings.GENERATION_SIZE; i++){
+        for(int i = 0; i < Constants.GENERATION_SIZE; i++){
             initialGeneration.add(new OneMaxHypothesis());
         }
         return initialGeneration;
@@ -158,4 +158,6 @@ public class Main extends Application{
     public static void main(String[] args) {
         launch(args);
     }
+
+
 }

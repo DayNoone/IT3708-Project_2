@@ -1,13 +1,20 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 public class EA implements EvolutionaryCycle{
 
     int generationNumber;
     Boolean running;
-    ArrayList<Hypothesis> hypothesises;
+    ArrayList<Hypothesis> population;
+    ArrayList<Hypothesis> adults = new ArrayList<Hypothesis>();
+    ArrayList<Hypothesis> parents = new ArrayList<Hypothesis>();
+
+    Boolean solutionFound = false;
+
+    private Random random = new Random();
 
     public EA(ArrayList<Hypothesis> initialGeneration){
-        hypothesises = initialGeneration;
+        population = initialGeneration;
         running = true;
 
         generationNumber = 0;
@@ -17,7 +24,7 @@ public class EA implements EvolutionaryCycle{
     }
     public void restartCycle(ArrayList<Hypothesis> initialGeneration) {
         // Could be replaced by just creating new EA
-        hypothesises = initialGeneration;
+        population = initialGeneration;
         generationNumber = 0;
         running = true;
     }
@@ -29,7 +36,6 @@ public class EA implements EvolutionaryCycle{
         }
         development();
         adultSelection();
-        retainAdults();
         parentSelection();
         reproduction();
         generationNumber++;
@@ -43,27 +49,182 @@ public class EA implements EvolutionaryCycle{
 
     @Override
     public void development() {
-
+        for(Hypothesis hyp: population) {
+            hyp.development();
+            hyp.calculateFitness();
+            if (hyp.getFitness() == 1){
+                solutionFound = true;
+            }
+        }
     }
 
     @Override
     public void adultSelection() {
-
+        ArrayList<Hypothesis> tempPopulation = new ArrayList<Hypothesis>(population);
+        double totalFitness;
+        switch (Constants.ADULT_SELECTION){
+            case FULL_GENERATION:
+                adults.clear();
+                adults.addAll(population);
+                break;
+            case OVER_PRODUCTION:
+                adults.clear();
+                while(adults.size() <= Constants.ADULTS_SIZE) {
+                    Hypothesis hyp = fitnessRoulette(tempPopulation);
+                    adults.add(hyp);
+                    tempPopulation.remove(hyp);
+                }
+                break;
+            case GENERATIONAL_MIXING:
+                ArrayList<Hypothesis> selectionPopulation = new ArrayList<Hypothesis>();
+                selectionPopulation.addAll(population);
+                selectionPopulation.addAll(adults);
+                adults.clear();
+                while(adults.size() <= Constants.ADULTS_SIZE) {
+                    Hypothesis hyp = fitnessRoulette(selectionPopulation);
+                    adults.add(hyp);
+                    tempPopulation.remove(hyp);
+                }
+                break;
+        }
     }
 
-    @Override
-    public void retainAdults() {
-
+    private Hypothesis fitnessRoulette(ArrayList<Hypothesis> population) {
+        double totalFitness = getTotalFitness(population);
+        double x = random.nextDouble() * totalFitness;
+        for (Hypothesis hypothesis : population) {
+            x -= hypothesis.getFitness();
+            if (x <= 0) {
+                return hypothesis;
+            }
+        }
+        throw new NullPointerException("No blank piece found!");
     }
 
     @Override
     public void parentSelection() {
+        parents.clear();
+        Hypothesis parent1;
+        Hypothesis parent2;
+        switch (Constants.PARENT_SELECTION){
+            case FITNESS_PROPORTIONATE:
+                while(parents.size() <= Constants.PARENTS_SIZE) {
+                    parent1 = fitnessRoulette(adults);
+                    adults.remove(parent1);
+                    parent2 = fitnessRoulette(adults);
+                    adults.add(parent1);
+                    parents.add(parent1);
+                    parents.add(parent2);
+                }
+                break;
+            case SIGMA_SCALING:
+                while(parents.size() <= Constants.PARENTS_SIZE) {
+                    parent1 = sigmaRoulette(adults);
+                    adults.remove(parent1);
+                    parent2 = sigmaRoulette(adults);
+                    adults.add(parent1);
+                    parents.add(parent1);
+                    parents.add(parent2);
+                }
+                break;
+            case TOURNAMENT_SELECTION:
+                while(parents.size() <= Constants.PARENTS_SIZE) {
+                    ArrayList<Hypothesis> tournamentGroup = new ArrayList<Hypothesis>();
+                    for (int i = 0; i < Constants.TOURNAMENT_GROUP_SIZE; i++){
+                        tournamentGroup.add(adults.get(random.nextInt(adults.size())));
+                    }
 
+                    parents.add(findTournamentWinner(tournamentGroup));
+                    parents.add(findTournamentWinner(tournamentGroup));
+                }
+                break;
+            case UNIFORM_SELECTION:
+                while(parents.size() <= Constants.PARENTS_SIZE) {
+                    parent1 = adults.get(random.nextInt(adults.size()));
+                    adults.remove(parent1);
+                    parent2 = adults.get(random.nextInt(adults.size()));
+                    adults.add(parent1);
+                    parents.add(parent1);
+                    parents.add(parent2);
+
+                }
+                break;
+        }
     }
+
+    private Hypothesis findTournamentWinner(ArrayList<Hypothesis> tournamentGroup) {
+        if(random.nextDouble() > Constants.TOURNAMENT_PROBABILITY) {
+            return getFittest(tournamentGroup);
+        } else {
+            return tournamentGroup.get(random.nextInt(tournamentGroup.size()));
+        }
+    }
+
+    private Hypothesis getFittest(ArrayList<Hypothesis> population) {
+        Hypothesis bestHypothesis = population.get(0);
+        for (Hypothesis hypothesis: population){
+            if (hypothesis.getFitness() > bestHypothesis.getFitness()){
+                bestHypothesis = hypothesis;
+            }
+        }
+        return bestHypothesis;
+    }
+
+    private Hypothesis sigmaRoulette(ArrayList<Hypothesis> population) {
+        double averageFitness = getTotalFitness(adults) / adults.size();
+        double standardDeviation = getStandardDeviation(adults, averageFitness);
+        for (Hypothesis hypothesis: adults){
+            hypothesis.calculateSigma(adults, averageFitness, standardDeviation);
+        }
+        double totalSigma = getTotalSigma(population);
+        double x = random.nextDouble() * totalSigma;
+        for (Hypothesis hypothesis : population) {
+            x -= hypothesis.getSigma();
+            if (x <= 0) {
+                return hypothesis;
+            }
+        }
+        throw new NullPointerException("No blank piece found!");
+    }
+
+
 
     @Override
     public void reproduction() {
+        // Elitism
+        Hypothesis fittest = getFittest(population);
+        population.clear();
+        population.add(fittest);
+        if (Constants.CROSSOVER){
+            while(population.size() <= Constants.GENERATION_SIZE) {
+                for (int i = 0; i < parents.size(); i = i+2){
+                    population.add(reproduce(parents.get(i), parents.get(i + 1)));
+                }
+            }
+        }
 
+        if (Constants.MUTATION){
+            while(population.size() <= Constants.GENERATION_SIZE) {
+                // Fyller opp population med muterte parents. Flere runder.
+                for(Hypothesis hypothesis: parents) {
+                    hypothesis.mutate();
+                    population.add(hypothesis);
+                }
+            }
+        }
+    }
+
+    private Hypothesis reproduce(Hypothesis parent1, Hypothesis parent2) {
+
+        int crosspoint = random.nextInt(parent1.genotype.length);
+        for (int i = 0; i < parent1.genotype.length; i++){
+            if(i < crosspoint){
+                break;
+            } else {
+                break;
+            }
+        }
+        return null;
     }
 
     public boolean isRunning() {
@@ -74,7 +235,34 @@ public class EA implements EvolutionaryCycle{
         this.running = running;
     }
 
-    public ArrayList<Hypothesis> getHypothesises() {
-        return hypothesises;
+    public ArrayList<Hypothesis> gethypothesis() {
+        return population;
+    }
+
+    public boolean getSolution() {
+        return solutionFound;
+    }
+
+    public double getTotalFitness(ArrayList<Hypothesis> population) {
+        double total = 0;
+        for (Hypothesis hypothesis: population){
+            total += hypothesis.getFitness();
+        }
+        return total;
+    }
+    private double getTotalSigma(ArrayList<Hypothesis> population) {
+        double total = 0;
+        for (Hypothesis hypothesis: population){
+            total += hypothesis.getSigma();
+        }
+        return total;
+    }
+    public double getStandardDeviation(ArrayList<Hypothesis> population, double averageFitness) {
+        double standardDeviation = 0;
+        for(Hypothesis adult: population){
+            standardDeviation += Math.pow((adult.getFitness() - averageFitness),2);
+        }
+        return Math.sqrt(standardDeviation / population.size());
+
     }
 }

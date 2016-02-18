@@ -13,9 +13,6 @@ public interface EvolutionaryCycle {
 
     void adultSelection();
 
-    // Aging & death
-    void retainAdults();
-
     // based on fitness
     void parentSelection();
 
