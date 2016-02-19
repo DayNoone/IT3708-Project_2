@@ -1,32 +1,34 @@
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 public class OneMaxHypothesis extends Hypothesis {
-    int[] genotype = new int[Constants.GENOTYPE_ONEMAX_SIZE];
-    int[] phenotype = new int[Constants.GENOTYPE_ONEMAX_SIZE];
+    public int[] genotype = new int[Constants.GENOTYPE_ONEMAX_SIZE];
+    int[] phenotype;
     double fitness;
     double sigma;
 
-    Random random = new Random();
+    static Random random = new Random();
 
-    public OneMaxHypothesis(OneMaxHypothesis parent) {
-        genotype = parent.genotype;
+    public OneMaxHypothesis(int[] parentGenotype) {
+        this.genotype = parentGenotype;
+        this.phenotype = genotype;
+        calculateFitness();
     }
 
     public OneMaxHypothesis(){
         for (int i = 0; i < genotype.length; i++){
             genotype[i] = random.nextInt(2);
         }
+        this.phenotype = new int[Constants.GENOTYPE_ONEMAX_SIZE];
     }
 
     public void calculateFitness(){
-        double oneCount = 0.0;
-        for(int i: genotype){
+        double oneCount = 0;
+        for(int i: phenotype){
             if (i == 1) oneCount++;
         }
-        this.fitness = (double) oneCount / genotype.length;
+        this.fitness = oneCount / phenotype.length;
     }
     public void calculateSigma(ArrayList<Hypothesis> adults, double averageFitness, double standardDeviation){
         sigma = ((fitness - averageFitness) / (2 * standardDeviation)) + 1;
@@ -40,15 +42,39 @@ public class OneMaxHypothesis extends Hypothesis {
     }
 
     public void mutate() {
-        for (int i = 0; i < phenotype.length; i++) {
-            if (random.nextDouble() <= Constants.MUTATION_RATE){
-                if (phenotype[i] == 0) {
-                    phenotype[i] = 1;
+        for (int i = 0; i < Constants.GENOTYPE_ONEMAX_SIZE; i++) {
+            if (random.nextDouble() < Constants.MUTATION_RATE){
+                if (genotype[i] == 0) {
+                    genotype[i] = 1;
                 } else {
-                    phenotype[i] = 0;
+                    genotype[i] = 0;
                 }
             }
         }
+    }
+
+    public ArrayList<Hypothesis> crossover(Hypothesis parent) {
+        int crosspoint = random.nextInt(Constants.GENOTYPE_ONEMAX_SIZE);
+        int[] childGenotype1 = new int[Constants.GENOTYPE_ONEMAX_SIZE];
+        int[] childGenotype2 = new int[Constants.GENOTYPE_ONEMAX_SIZE];
+        for (int i = 0; i < Constants.GENOTYPE_ONEMAX_SIZE; i++){
+            if(i > crosspoint){
+                childGenotype1[i] = this.getGenotype()[i];
+                childGenotype2[i] = parent.getGenotype()[i];
+            }
+            else {
+                childGenotype1[i] = parent.getGenotype()[i];
+                childGenotype2[i] = this.getGenotype()[i];
+            }
+        }
+        ArrayList<Hypothesis> children = new ArrayList<Hypothesis>();
+        children.add(new OneMaxHypothesis(childGenotype1));
+        children.add(new OneMaxHypothesis(childGenotype2));
+        return children;
+    }
+
+    public int[] getGenotype() {
+        return genotype;
     }
 
     public void development(){

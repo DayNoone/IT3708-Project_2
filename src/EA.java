@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -30,10 +31,6 @@ public class EA implements EvolutionaryCycle{
     }
 
     public void iteration() {
-        System.out.println("Generation: " + generationNumber);
-        if (generationNumber != 0){
-            newGeneration();
-        }
         development();
         adultSelection();
         parentSelection();
@@ -42,10 +39,6 @@ public class EA implements EvolutionaryCycle{
     }
 
 
-    @Override
-    public void newGeneration() {
-
-    }
 
     @Override
     public void development() {
@@ -106,9 +99,10 @@ public class EA implements EvolutionaryCycle{
         parents.clear();
         Hypothesis parent1;
         Hypothesis parent2;
+        ArrayList<Hypothesis> tempAdults = new ArrayList<>();
         switch (Constants.PARENT_SELECTION){
             case FITNESS_PROPORTIONATE:
-                while(parents.size() <= Constants.PARENTS_SIZE) {
+                while(parents.size() < Constants.PARENTS_SIZE) {
                     parent1 = fitnessRoulette(adults);
                     adults.remove(parent1);
                     parent2 = fitnessRoulette(adults);
@@ -118,7 +112,7 @@ public class EA implements EvolutionaryCycle{
                 }
                 break;
             case SIGMA_SCALING:
-                while(parents.size() <= Constants.PARENTS_SIZE) {
+                while(parents.size() < Constants.PARENTS_SIZE) {
                     parent1 = sigmaRoulette(adults);
                     adults.remove(parent1);
                     parent2 = sigmaRoulette(adults);
@@ -128,18 +122,22 @@ public class EA implements EvolutionaryCycle{
                 }
                 break;
             case TOURNAMENT_SELECTION:
-                while(parents.size() <= Constants.PARENTS_SIZE) {
+                while(parents.size() < Constants.PARENTS_SIZE) {
+                    tempAdults.clear();
+                    tempAdults.addAll(adults);
                     ArrayList<Hypothesis> tournamentGroup = new ArrayList<Hypothesis>();
                     for (int i = 0; i < Constants.TOURNAMENT_GROUP_SIZE; i++){
-                        tournamentGroup.add(adults.get(random.nextInt(adults.size())));
+                        Hypothesis chosen = adults.get(random.nextInt(adults.size()));
+                        tournamentGroup.add(chosen);
+                        tempAdults.remove(chosen);
                     }
-
+                    tempAdults.addAll(tournamentGroup);
                     parents.add(findTournamentWinner(tournamentGroup));
                     parents.add(findTournamentWinner(tournamentGroup));
                 }
                 break;
             case UNIFORM_SELECTION:
-                while(parents.size() <= Constants.PARENTS_SIZE) {
+                while(parents.size() < Constants.PARENTS_SIZE) {
                     parent1 = adults.get(random.nextInt(adults.size()));
                     adults.remove(parent1);
                     parent2 = adults.get(random.nextInt(adults.size()));
@@ -153,14 +151,14 @@ public class EA implements EvolutionaryCycle{
     }
 
     private Hypothesis findTournamentWinner(ArrayList<Hypothesis> tournamentGroup) {
-        if(random.nextDouble() > Constants.TOURNAMENT_PROBABILITY) {
+        if(random.nextDouble() < Constants.TOURNAMENT_PROBABILITY) {
             return getFittest(tournamentGroup);
         } else {
             return tournamentGroup.get(random.nextInt(tournamentGroup.size()));
         }
     }
 
-    private Hypothesis getFittest(ArrayList<Hypothesis> population) {
+    public Hypothesis getFittest(ArrayList<Hypothesis> population) {
         Hypothesis bestHypothesis = population.get(0);
         for (Hypothesis hypothesis: population){
             if (hypothesis.getFitness() > bestHypothesis.getFitness()){
@@ -192,39 +190,35 @@ public class EA implements EvolutionaryCycle{
     @Override
     public void reproduction() {
         // Elitism
-        Hypothesis fittest = getFittest(population);
+        ArrayList<Hypothesis> fittestGroup = new ArrayList<Hypothesis>();
+        Hypothesis fittest;
+        for (int i = 0; i < Constants.ELITISM_SIZE; i++) {
+            fittest = getFittest(population);
+            fittestGroup.add(fittest);
+            population.remove(fittest);
+        }
         population.clear();
-        population.add(fittest);
-        if (Constants.CROSSOVER){
-            while(population.size() <= Constants.GENERATION_SIZE) {
-                for (int i = 0; i < parents.size(); i = i+2){
-                    population.add(reproduce(parents.get(i), parents.get(i + 1)));
+        population.addAll(fittestGroup);
+
+
+
+        if (Constants.CROSSOVER) {
+            for (int i = 0; i < parents.size(); i = i + 2) {
+                if (random.nextDouble() < Constants.CROSSOVER_RATE) {
+                    population.addAll(parents.get(i).crossover(parents.get(i + 1)));
+                } else {
+                    population.add(parents.get(i));
+                    population.add(parents.get(i + 1));
                 }
             }
         }
 
         if (Constants.MUTATION){
-            while(population.size() <= Constants.GENERATION_SIZE) {
+            for(Hypothesis child: population) {
                 // Fyller opp population med muterte parents. Flere runder.
-                for(Hypothesis hypothesis: parents) {
-                    hypothesis.mutate();
-                    population.add(hypothesis);
-                }
+                child.mutate();
             }
         }
-    }
-
-    private Hypothesis reproduce(Hypothesis parent1, Hypothesis parent2) {
-
-        int crosspoint = random.nextInt(parent1.genotype.length);
-        for (int i = 0; i < parent1.genotype.length; i++){
-            if(i < crosspoint){
-                break;
-            } else {
-                break;
-            }
-        }
-        return null;
     }
 
     public boolean isRunning() {
@@ -233,10 +227,6 @@ public class EA implements EvolutionaryCycle{
 
     public void setRunning(boolean running) {
         this.running = running;
-    }
-
-    public ArrayList<Hypothesis> gethypothesis() {
-        return population;
     }
 
     public boolean getSolution() {
@@ -260,9 +250,13 @@ public class EA implements EvolutionaryCycle{
     public double getStandardDeviation(ArrayList<Hypothesis> population, double averageFitness) {
         double standardDeviation = 0;
         for(Hypothesis adult: population){
-            standardDeviation += Math.pow((adult.getFitness() - averageFitness),2);
+            standardDeviation += Math.pow((adult.getFitness() - averageFitness), 2);
         }
         return Math.sqrt(standardDeviation / population.size());
 
+    }
+
+    public int getGenerationNumber() {
+        return generationNumber;
     }
 }

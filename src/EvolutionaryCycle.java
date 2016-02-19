@@ -5,8 +5,6 @@ public interface EvolutionaryCycle {
     // genotypes -> needs bitstring
     // phenotypes -> solutions
 
-    // only new generation or new generation + parents
-    void newGeneration();
 
     // converting genotypes to phenotypes
     void development();

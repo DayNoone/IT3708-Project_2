@@ -4,6 +4,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
@@ -25,6 +28,10 @@ public class Main extends Application{
     int controlsRowNumber = 1;
 
     Console console;
+    XYChart.Series series;
+    final NumberAxis xAxis = new NumberAxis(0, Constants.GENERATION_SIZE, 2);
+    final NumberAxis yAxis = new NumberAxis(0, 1, 0.1);
+    final LineChart<Number,Number> lineChart = new LineChart<Number,Number>(xAxis,yAxis);
 
     public void start(Stage primaryStage) throws IOException {
 
@@ -36,12 +43,12 @@ public class Main extends Application{
         //--------------------------------- GUI OBJECTS ------------------------------
         primaryStage.setTitle("Evolutionary Algorithm");
 
-        Text scenetitle = new Text("Welcome");
+        Text scenetitle = new Text("Evolutionary Algorithm");
         scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
 
         String outputText = "This is to output text \nTo see the solutions";
         TextArea outputArea = new TextArea();
-        outputArea.setMinHeight(800);
+        outputArea.setMinHeight(380);
         outputArea.setEditable(false);
 
         // Console for outputting information without interrupting the evolutionary cycle
@@ -88,13 +95,20 @@ public class Main extends Application{
 
         grid.add(outputArea, 1, 1, 1, controlsRowNumber);
 
+        //--------------------------------- PLOT ------------------------------------
+        lineChart.setTitle("Population fitness");
+        lineChart.setLegendVisible(false);
+        series = new XYChart.Series();
+        series.setName("My portfolio");
+
+        grid.add(lineChart, 2, 1, 1, controlsRowNumber);
+
+
         Scene scene = new Scene(grid, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
         primaryStage.setScene(scene);
         primaryStage.show();
 
         startEA();
-
-
     }
 
     private void startEA() {
@@ -103,19 +117,25 @@ public class Main extends Application{
             public void handle(long now) {
                 if(evolutionaryAlgorithmCycle.isRunning()){
                     evolutionaryAlgorithmCycle.iteration();
+                    lineChart.getData().retainAll();
+                    lineChart.setAnimated(false);
+                    series = new XYChart.Series();
+                    for (int i = 0; i < evolutionaryAlgorithmCycle.population.size(); i++){
+                        series.getData().add(new XYChart.Data(i, (evolutionaryAlgorithmCycle.population.get(i)).getFitness()));
+                    }
+
+                    lineChart.getData().add(series);
+
+                    console.writeString("PopSize: "+ evolutionaryAlgorithmCycle.population.size() + " Generation: " + evolutionaryAlgorithmCycle.getGenerationNumber() + "\t Best hypothesis: " + (evolutionaryAlgorithmCycle.getFittest(evolutionaryAlgorithmCycle.population)).getFitness() + "\n");
                     if (evolutionaryAlgorithmCycle.getSolution()){
-                        evolutionaryAlgorithmCycle.setRunning(false);
                         console.writeString("Solution Found");
+                        evolutionaryAlgorithmCycle.setRunning(false);
                     }
                 }
             }
         };
 
         eaLoop.start();
-        ArrayList<Hypothesis> hypothesises = evolutionaryAlgorithmCycle.gethypothesis();
-        for(Hypothesis hypothesis: hypothesises){
-            console.writeString(hypothesis.toString() + '\n');
-        }
     }
 
 

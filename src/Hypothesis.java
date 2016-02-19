@@ -3,12 +3,6 @@ import java.util.List;
 
 public abstract class Hypothesis {
 
-    int[] genotype;
-    List<Hypothesis> parents = new ArrayList<Hypothesis>();
-    private int fitness;
-    private double sigma;
-
-
     public Hypothesis(int[] genotypeBitstring, List<Hypothesis> parents) {
     }
     public Hypothesis(){
@@ -25,4 +19,8 @@ public abstract class Hypothesis {
     public abstract double getSigma();
 
     public abstract void mutate();
+
+    public abstract ArrayList<Hypothesis> crossover(Hypothesis parent);
+
+    public abstract int[] getGenotype();
 }
