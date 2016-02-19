@@ -30,8 +30,8 @@ public class OneMaxHypothesis extends Hypothesis {
         }
         this.fitness = oneCount / phenotype.length;
     }
-    public void calculateSigma(ArrayList<Hypothesis> adults, double averageFitness, double standardDeviation){
-        sigma = ((fitness - averageFitness) / (2 * standardDeviation)) + 1;
+    public void calculateSigma(double averageFitness, double standardDeviation){
+        sigma = 1 + ((fitness - averageFitness) / (2 * standardDeviation));
     }
 
     public double getFitness() {
@@ -75,6 +75,10 @@ public class OneMaxHypothesis extends Hypothesis {
 
     public int[] getGenotype() {
         return genotype;
+    }
+
+    public int[] getPhenotype() {
+        return phenotype;
     }
 
     public void development(){

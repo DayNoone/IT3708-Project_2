@@ -1,5 +1,6 @@
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -8,6 +9,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -17,6 +19,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Main extends Application{
 
@@ -24,14 +27,21 @@ public class Main extends Application{
 
     AnimationTimer eaLoop;
 
-    GridPane grid;
+    GridPane gridControls;
+    GridPane gridPlots;
     int controlsRowNumber = 1;
 
     Console console;
-    XYChart.Series series;
-    final NumberAxis xAxis = new NumberAxis(0, Constants.GENERATION_SIZE, 2);
+    XYChart.Series<Number, Number> series;
+    XYChart.Series<Number, Number> bestFitnessSeries;
+    XYChart.Series<Number, Number> averageFitnessSeries;
+    XYChart.Series<Number, Number> standardDeviationSeries;
+    final NumberAxis xAxis = new NumberAxis(0, Constants.GENERATION_SIZE-1, 2);
     final NumberAxis yAxis = new NumberAxis(0, 1, 0.1);
-    final LineChart<Number,Number> lineChart = new LineChart<Number,Number>(xAxis,yAxis);
+    final LineChart<Number,Number> generationFitnessPlot = new LineChart<Number,Number>(xAxis,yAxis);
+    final LineChart<Number,Number> bestFitnessPlot = new LineChart<Number,Number>(new NumberAxis(),new NumberAxis());
+    final LineChart<Number,Number> averageFitnessPlot = new LineChart<Number,Number>(new NumberAxis(),new NumberAxis());
+    final LineChart<Number,Number> standardDeviationPlot = new LineChart<Number,Number>(new NumberAxis(),new NumberAxis());
 
     public void start(Stage primaryStage) throws IOException {
 
@@ -48,20 +58,27 @@ public class Main extends Application{
 
         String outputText = "This is to output text \nTo see the solutions";
         TextArea outputArea = new TextArea();
-        outputArea.setMinHeight(380);
+        outputArea.setMinHeight(720);
+        outputArea.setMinWidth(600);
         outputArea.setEditable(false);
 
         // Console for outputting information without interrupting the evolutionary cycle
         console = new Console(outputArea);
-
         //--------------------------------- CONTROLS ---------------------------------
-        Button restartButton = new Button();
-        restartButton.setText("Restart cycle");
-        restartButton.setOnAction(event -> evolutionaryAlgorithmCycle.restartCycle(initializeGeneration()));
+        Button oneMaxButton = new Button();
+        GridPane.setHalignment(oneMaxButton, HPos.CENTER);
+        oneMaxButton.setText("Start OneMax problem");
+        oneMaxButton.setOnAction(event -> evolutionaryAlgorithmCycle.restartCycle(initializeGeneration()));
 
-        Button startButton = new Button();
-        startButton.setText("Start cycle");
-        startButton.setOnAction(event -> evolutionaryAlgorithmCycle.setRunning(true));
+        Button lolzButton = new Button();
+        GridPane.setHalignment(lolzButton, HPos.CENTER);
+        lolzButton.setText("Start Lolz problem");
+        lolzButton.setOnAction(event -> evolutionaryAlgorithmCycle.setRunning(true));
+
+        Button supriseButton = new Button();
+        GridPane.setHalignment(supriseButton, HPos.CENTER);
+        supriseButton.setText("Start Suprise problem");
+        supriseButton.setOnAction(event -> evolutionaryAlgorithmCycle.setRunning(true));
 
         Label finessThresholdLabel = new Label("Fitness Threshold");
         Label mutationRateLabel = new Label("Mutation Rate");
@@ -74,16 +91,18 @@ public class Main extends Application{
         Slider crossoverRateSlider = new Slider();
 
         //--------------------------------- GUI LAYOUT -------------------------------
-        grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(25, 25, 25, 25));
+        gridControls = new GridPane();
+        gridControls.setMinHeight(Constants.SCENE_HEIGHT);
+        gridControls.setAlignment(Pos.TOP_CENTER);
+        gridControls.setHgap(10);
+        gridControls.setVgap(10);
+        gridControls.setPadding(new Insets(25, 25, 25, 25));
 
-        grid.add(scenetitle, 0, 0, 2, 1);
+        gridControls.add(scenetitle, 0, 0, 2, 1);
 
-        addControl(restartButton);
-        addControl(startButton);
+        addControl(oneMaxButton);
+        addControl(lolzButton);
+        addControl(supriseButton);
         addControl(finessThresholdLabel);
         addControl(fitnessThresholdSlider);
         addControl(mutationRateLabel);
@@ -93,18 +112,41 @@ public class Main extends Application{
         addControl(crossoverRateLabel);
         addControl(crossoverRateSlider);
 
-        grid.add(outputArea, 1, 1, 1, controlsRowNumber);
+        gridControls.add(outputArea, 1, 1, 1, controlsRowNumber);
 
         //--------------------------------- PLOT ------------------------------------
-        lineChart.setTitle("Population fitness");
-        lineChart.setLegendVisible(false);
-        series = new XYChart.Series();
+        GridPane gridPlots = new GridPane();
+        generationFitnessPlot.setTitle("Population fitness");
+        generationFitnessPlot.setLegendVisible(false);
+        series = new XYChart.Series<>();
         series.setName("My portfolio");
+        gridPlots.add(generationFitnessPlot, 0, 0);
 
-        grid.add(lineChart, 2, 1, 1, controlsRowNumber);
+        bestFitnessSeries = new XYChart.Series<>();
+        bestFitnessPlot.setTitle("Best fitness");
+        bestFitnessPlot.setAnimated(false);
+        bestFitnessPlot.setLegendVisible(false);
+        bestFitnessPlot.getData().add(bestFitnessSeries);
+        gridPlots.add(bestFitnessPlot, 1, 0);
 
+        averageFitnessSeries = new XYChart.Series<>();
+        averageFitnessPlot.setTitle("Average fitness");
+        averageFitnessPlot.setAnimated(false);
+        averageFitnessPlot.setLegendVisible(false);
+        averageFitnessPlot.getData().add(averageFitnessSeries);
+        gridPlots.add(averageFitnessPlot, 0, 1);
 
-        Scene scene = new Scene(grid, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
+        standardDeviationSeries = new XYChart.Series<>();
+        standardDeviationPlot.setTitle("Standard deviation");
+        standardDeviationPlot.setAnimated(false);
+        standardDeviationPlot.setLegendVisible(false);
+        standardDeviationPlot.getData().add(standardDeviationSeries);
+        gridPlots.add(standardDeviationPlot, 1, 1);
+
+        BorderPane root = new BorderPane();
+        root.setLeft(gridControls);
+        root.setRight(gridPlots);
+        Scene scene = new Scene(root, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -117,25 +159,41 @@ public class Main extends Application{
             public void handle(long now) {
                 if(evolutionaryAlgorithmCycle.isRunning()){
                     evolutionaryAlgorithmCycle.iteration();
-                    lineChart.getData().retainAll();
-                    lineChart.setAnimated(false);
-                    series = new XYChart.Series();
-                    for (int i = 0; i < evolutionaryAlgorithmCycle.population.size(); i++){
-                        series.getData().add(new XYChart.Data(i, (evolutionaryAlgorithmCycle.population.get(i)).getFitness()));
-                    }
-
-                    lineChart.getData().add(series);
-
-                    console.writeString("PopSize: "+ evolutionaryAlgorithmCycle.population.size() + " Generation: " + evolutionaryAlgorithmCycle.getGenerationNumber() + "\t Best hypothesis: " + (evolutionaryAlgorithmCycle.getFittest(evolutionaryAlgorithmCycle.population)).getFitness() + "\n");
-                    if (evolutionaryAlgorithmCycle.getSolution()){
-                        console.writeString("Solution Found");
+                    updateLinechart();
+                    if (evolutionaryAlgorithmCycle.getSolution()) {
+                        console.writeStringln("--------------------------------- Solution found ---------------------------------");
                         evolutionaryAlgorithmCycle.setRunning(false);
                     }
+                    double averageFitness = evolutionaryAlgorithmCycle.getAverageFitness(evolutionaryAlgorithmCycle.population);
+                    Hypothesis fittest = evolutionaryAlgorithmCycle.getFittest(evolutionaryAlgorithmCycle.population);
+                    console.writeStringln("Gen: " + evolutionaryAlgorithmCycle.getGenerationNumber() +
+                            "\t Best: " + String.format("%.2f", fittest.getFitness()) +
+                            "\t Avg fitness: " + String.format("%.2f", averageFitness) +
+                            "\t SD: " + String.format("%.3f", evolutionaryAlgorithmCycle.getStandardDeviation(evolutionaryAlgorithmCycle.population, averageFitness)) +
+                            "\t Pheno: " + Arrays.toString(fittest.getPhenotype()));
+
                 }
             }
         };
 
         eaLoop.start();
+    }
+
+    private void updateLinechart() {
+        ArrayList<Hypothesis> population = evolutionaryAlgorithmCycle.population;
+        generationFitnessPlot.getData().retainAll();
+        generationFitnessPlot.setAnimated(false);
+        series = new XYChart.Series<>();
+        for (int i = 0; i < population.size(); i++){
+            series.getData().add(new XYChart.Data<>(i, (population.get(i)).getFitness()));
+        }
+        generationFitnessPlot.getData().add(series);
+
+
+        double averageFitness = evolutionaryAlgorithmCycle.getAverageFitness(population);
+        bestFitnessSeries.getData().add(new XYChart.Data<>(evolutionaryAlgorithmCycle.getGenerationNumber(), (evolutionaryAlgorithmCycle.getFittest(population)).getFitness()));
+        averageFitnessSeries.getData().add(new XYChart.Data<>(evolutionaryAlgorithmCycle.getGenerationNumber(), averageFitness));
+        standardDeviationSeries.getData().add(new XYChart.Data<>(evolutionaryAlgorithmCycle.getGenerationNumber(), (evolutionaryAlgorithmCycle.getStandardDeviation(population, averageFitness))));
     }
 
 
@@ -156,10 +214,11 @@ public class Main extends Application{
             this.output = ta;
         }
 
-        public void writeString(String text) {
+        public void writeStringln(String text) {
             for (char letter : text.toCharArray()) {
                 output.appendText(String.valueOf((char) letter));
             }
+            output.appendText("\n");
     }
 
         @Override
@@ -169,7 +228,7 @@ public class Main extends Application{
     }
 
     public void addControl(Node node){
-        grid.add(node, 0, controlsRowNumber);
+        gridControls.add(node, 0, controlsRowNumber);
         controlsRowNumber++;
     }
 

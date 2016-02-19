@@ -38,16 +38,15 @@ public class EA implements EvolutionaryCycle{
         generationNumber++;
     }
 
-
-
     @Override
     public void development() {
         for(Hypothesis hyp: population) {
             hyp.development();
             hyp.calculateFitness();
-            if (hyp.getFitness() == 1){
-                solutionFound = true;
-            }
+        }
+        Hypothesis fittest = getFittest(population);
+        if (fittest.getFitness() == 1){
+            solutionFound = true;
         }
     }
 
@@ -100,6 +99,7 @@ public class EA implements EvolutionaryCycle{
         Hypothesis parent1;
         Hypothesis parent2;
         ArrayList<Hypothesis> tempAdults = new ArrayList<>();
+        tempAdults.addAll(adults);
         switch (Constants.PARENT_SELECTION){
             case FITNESS_PROPORTIONATE:
                 while(parents.size() < Constants.PARENTS_SIZE) {
@@ -113,10 +113,10 @@ public class EA implements EvolutionaryCycle{
                 break;
             case SIGMA_SCALING:
                 while(parents.size() < Constants.PARENTS_SIZE) {
-                    parent1 = sigmaRoulette(adults);
-                    adults.remove(parent1);
-                    parent2 = sigmaRoulette(adults);
-                    adults.add(parent1);
+                    parent1 = sigmaRoulette(tempAdults);
+                    tempAdults.remove(parent1);
+                    parent2 = sigmaRoulette(tempAdults);
+                    tempAdults.add(parent1);
                     parents.add(parent1);
                     parents.add(parent2);
                 }
@@ -144,7 +144,6 @@ public class EA implements EvolutionaryCycle{
                     adults.add(parent1);
                     parents.add(parent1);
                     parents.add(parent2);
-
                 }
                 break;
         }
@@ -169,10 +168,10 @@ public class EA implements EvolutionaryCycle{
     }
 
     private Hypothesis sigmaRoulette(ArrayList<Hypothesis> population) {
-        double averageFitness = getTotalFitness(adults) / adults.size();
-        double standardDeviation = getStandardDeviation(adults, averageFitness);
-        for (Hypothesis hypothesis: adults){
-            hypothesis.calculateSigma(adults, averageFitness, standardDeviation);
+        double averageFitness = getAverageFitness(population);
+        double standardDeviation = getStandardDeviation(population, averageFitness);
+        for (Hypothesis hypothesis: population){
+            hypothesis.calculateSigma(averageFitness, standardDeviation);
         }
         double totalSigma = getTotalSigma(population);
         double x = random.nextDouble() * totalSigma;
@@ -182,9 +181,12 @@ public class EA implements EvolutionaryCycle{
                 return hypothesis;
             }
         }
-        throw new NullPointerException("No blank piece found!");
+        return null;
     }
 
+    public double getAverageFitness(ArrayList<Hypothesis> population) {
+        return getTotalFitness(population) / population.size();
+    }
 
 
     @Override

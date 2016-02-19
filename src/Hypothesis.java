@@ -14,7 +14,7 @@ public abstract class Hypothesis {
 
     public abstract void development();
 
-    public abstract void calculateSigma(ArrayList<Hypothesis> adults, double averageFitness, double standardDeviation);
+    public abstract void calculateSigma(double averageFitness, double standardDeviation);
 
     public abstract double getSigma();
 
@@ -23,4 +23,6 @@ public abstract class Hypothesis {
     public abstract ArrayList<Hypothesis> crossover(Hypothesis parent);
 
     public abstract int[] getGenotype();
+
+    public abstract int[] getPhenotype();
 }
