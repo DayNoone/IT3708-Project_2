@@ -1,5 +1,6 @@
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 public class EA implements EvolutionaryCycle{
@@ -32,9 +33,15 @@ public class EA implements EvolutionaryCycle{
 
     public void iteration() {
         development();
-        adultSelection();
-        parentSelection();
-        reproduction();
+        Hypothesis fittest = getFittest(population);
+        if (fittest.getFitness() == 1){
+            solutionFound = true;
+            setRunning(false);
+        } else {
+            adultSelection();
+            parentSelection();
+            reproduction();
+        }
         generationNumber++;
     }
 
@@ -44,10 +51,7 @@ public class EA implements EvolutionaryCycle{
             hyp.development();
             hyp.calculateFitness();
         }
-        Hypothesis fittest = getFittest(population);
-        if (fittest.getFitness() == 1){
-            solutionFound = true;
-        }
+
     }
 
     @Override
@@ -181,7 +185,7 @@ public class EA implements EvolutionaryCycle{
                 return hypothesis;
             }
         }
-        return null;
+        throw new NullPointerException("Sigma roulette not returning hypothesis");
     }
 
     public double getAverageFitness(ArrayList<Hypothesis> population) {
@@ -207,7 +211,9 @@ public class EA implements EvolutionaryCycle{
         if (Constants.CROSSOVER) {
             for (int i = 0; i < parents.size(); i = i + 2) {
                 if (random.nextDouble() < Constants.CROSSOVER_RATE) {
-                    population.addAll(parents.get(i).crossover(parents.get(i + 1)));
+                    Hypothesis parent1 = parents.get(i);
+                    Hypothesis parent2 = parents.get(i+1);
+                    population.addAll(parent1.crossover(parent2));
                 } else {
                     population.add(parents.get(i));
                     population.add(parents.get(i + 1));
@@ -250,7 +256,7 @@ public class EA implements EvolutionaryCycle{
         return total;
     }
     public double getStandardDeviation(ArrayList<Hypothesis> population, double averageFitness) {
-        double standardDeviation = 0;
+        double standardDeviation = 0.0;
         for(Hypothesis adult: population){
             standardDeviation += Math.pow((adult.getFitness() - averageFitness), 2);
         }

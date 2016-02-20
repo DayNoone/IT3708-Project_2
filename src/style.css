@@ -1,0 +1,46 @@
+.default-color0.chart-series-line {
+    -fx-stroke-color: #d35400;
+}
+.chart-series-line {
+    -fx-stroke-width: 3px;
+    -fx-effect: null;
+}
+.chart-title {
+  -fx-font-weight: 100;
+}
+.root {
+    -fx-background-color: #ecf0f1;
+}
+.button {
+    -fx-border: none;
+    -fx-font-size: 14px;
+    -fx-font-weight: 100;
+    -fx-line-height: 1.4;
+    -fx-border-radius: 4px;
+    -fx-padding: 8px 12px;
+    -fx-color: #ffffff;
+    -fx-background-color: #bdc3c7;
+    -fx-text-fill: white;
+}
+.button:hover {
+    -fx-color: #ffffff;
+    -fx-background-color: #d35400;
+}
+.button:focused {
+    -fx-focus-color: #d35400;
+}
+#radioGroup {
+    -fx-font-size: 14px;
+}
+
+.radio-button {
+  -fx-color: #bdc3c7;
+  -fx-margin-bottom: 12px;
+  -fx-padding-left: 32px;
+  -fx-position: relative;
+  -fx-font-size: 12px;
+  -fx-line-height: 1.5;
+}
+.radio-button:focused {
+    -fx-focus-color: transparent;
+}
