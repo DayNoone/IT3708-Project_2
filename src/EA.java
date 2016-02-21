@@ -1,10 +1,7 @@
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
 public class EA implements EvolutionaryCycle{
-
     int generationNumber;
     Boolean running;
     ArrayList<Hypothesis> population;
@@ -31,27 +28,12 @@ public class EA implements EvolutionaryCycle{
         running = true;
     }
 
-    public void iteration() {
-        development();
-        Hypothesis fittest = getFittest(population);
-        if (fittest.getFitness() == 1){
-            solutionFound = true;
-            setRunning(false);
-        } else {
-            adultSelection();
-            parentSelection();
-            reproduction();
-        }
-        generationNumber++;
-    }
-
-    @Override
     public void development() {
         for(Hypothesis hyp: population) {
             hyp.development();
             hyp.calculateFitness();
+            System.out.println("");
         }
-
     }
 
     @Override
@@ -161,21 +143,11 @@ public class EA implements EvolutionaryCycle{
         }
     }
 
-    public Hypothesis getFittest(ArrayList<Hypothesis> population) {
-        Hypothesis bestHypothesis = population.get(0);
-        for (Hypothesis hypothesis: population){
-            if (hypothesis.getFitness() > bestHypothesis.getFitness()){
-                bestHypothesis = hypothesis;
-            }
-        }
-        return bestHypothesis;
-    }
-
     private Hypothesis sigmaRoulette(ArrayList<Hypothesis> population) {
         double averageFitness = getAverageFitness(population);
         double standardDeviation = getStandardDeviation(population, averageFitness);
         for (Hypothesis hypothesis: population){
-            hypothesis.calculateSigma(averageFitness, standardDeviation);
+            calculateSigma(hypothesis, averageFitness, standardDeviation);
         }
         double totalSigma = getTotalSigma(population);
         double x = random.nextDouble() * totalSigma;
@@ -187,11 +159,6 @@ public class EA implements EvolutionaryCycle{
         }
         throw new NullPointerException("Sigma roulette not returning hypothesis");
     }
-
-    public double getAverageFitness(ArrayList<Hypothesis> population) {
-        return getTotalFitness(population) / population.size();
-    }
-
 
     @Override
     public void reproduction() {
@@ -213,40 +180,73 @@ public class EA implements EvolutionaryCycle{
                 if (random.nextDouble() < Constants.CROSSOVER_RATE) {
                     Hypothesis parent1 = parents.get(i);
                     Hypothesis parent2 = parents.get(i+1);
-                    population.addAll(parent1.crossover(parent2));
+                    ArrayList<Hypothesis> children = crossover(parent1, parent2);
+                    if (Constants.MUTATION) {
+                        for (Hypothesis child: children){
+                            mutate(child);
+                        }
+                    }
+                    population.addAll(children);
                 } else {
                     population.add(parents.get(i));
                     population.add(parents.get(i + 1));
                 }
             }
         }
+    }
 
-        if (Constants.MUTATION){
-            for(Hypothesis child: population) {
-                // Fyller opp population med muterte parents. Flere runder.
-                child.mutate();
+    public ArrayList<Hypothesis> crossover(Hypothesis parent1, Hypothesis parent2) {
+        int crosspoint = random.nextInt(Constants.BITSIZE);
+        int[] childGenotype1 = new int[Constants.BITSIZE];
+        int[] childGenotype2 = new int[Constants.BITSIZE];
+        for (int i = 0; i < Constants.BITSIZE; i++){
+            if(i > crosspoint){
+                childGenotype1[i] = parent1.getGenotype()[i];
+                childGenotype2[i] = parent2.getGenotype()[i];
+            }
+            else {
+                childGenotype1[i] = parent2.getGenotype()[i];
+                childGenotype2[i] = parent1.getGenotype()[i];
             }
         }
+        ArrayList<Hypothesis> children = new ArrayList<Hypothesis>();
+        children.add(parent1.getNewChild(childGenotype1));
+        children.add(parent1.getNewChild(childGenotype2));
+        return children;
     }
 
-    public boolean isRunning() {
-        return running;
-    }
+    public void mutate(Hypothesis hypothesis) {
+        if (random.nextDouble() < Constants.MUTATION_RATE_ALL) {
+            for (int i = 0; i < Constants.BITSIZE; i++) {
+                hypothesis.getGenotype()[i] = hypothesis.getGenotype()[i] == 0 ? 1 : 0;
+            }
+        } else {
+            for (int i = 0; i < Constants.BITSIZE; i++) {
+                if (random.nextDouble() < Constants.MUTATION_RATE) {
+                    hypothesis.getGenotype()[i] = hypothesis.getGenotype()[i] == 0 ? 1 : 0;
+                }
+            }
+        }
 
-    public void setRunning(boolean running) {
-        this.running = running;
     }
-
-    public boolean getSolution() {
-        return solutionFound;
+    public Hypothesis getFittest(ArrayList<Hypothesis> population) {
+        Hypothesis bestHypothesis = population.get(0);
+        for (Hypothesis hypothesis: population){
+            if (hypothesis.getFitness() > bestHypothesis.getFitness()){
+                bestHypothesis = hypothesis;
+            }
+        }
+        return bestHypothesis;
     }
-
     public double getTotalFitness(ArrayList<Hypothesis> population) {
         double total = 0;
         for (Hypothesis hypothesis: population){
             total += hypothesis.getFitness();
         }
         return total;
+    }
+    private void calculateSigma(Hypothesis hypothesis, double averageFitness, double standardDeviation){
+        hypothesis.setSigma(1 + ((hypothesis.getFitness() - averageFitness) / (2 * standardDeviation)));
     }
     private double getTotalSigma(ArrayList<Hypothesis> population) {
         double total = 0;
@@ -261,10 +261,23 @@ public class EA implements EvolutionaryCycle{
             standardDeviation += Math.pow((adult.getFitness() - averageFitness), 2);
         }
         return Math.sqrt(standardDeviation / population.size());
-
     }
-
+    public double getAverageFitness(ArrayList<Hypothesis> population) {
+        return getTotalFitness(population) / population.size();
+    }
+    public ArrayList<Hypothesis> getPopulation(){
+        return this.population;
+    }
     public int getGenerationNumber() {
         return generationNumber;
+    }
+    public boolean isRunning() {
+        return running;
+    }
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
+    public boolean getSolution() {
+        return solutionFound;
     }
 }

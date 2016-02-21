@@ -1,28 +1,44 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
 public abstract class Hypothesis {
+    public int[] genotype = new int[Constants.BITSIZE];
+    int[] phenotype;
+    double fitness;
+    double sigma;
 
-    public Hypothesis(int[] genotypeBitstring, List<Hypothesis> parents) {
+    static Random random = new Random();
+
+    public Hypothesis(int[] genotypeBitstring) {
+        this.genotype = genotypeBitstring;
+        this.phenotype = genotype;
+        calculateFitness();
     }
     public Hypothesis(){
 
     }
     public abstract void calculateFitness();
 
-    public abstract double getFitness();
+    public double getFitness() {
+        return fitness;
+    }
 
     public abstract void development();
 
-    public abstract void calculateSigma(double averageFitness, double standardDeviation);
+    public double getSigma() {
+        return sigma;
+    }
 
-    public abstract double getSigma();
+    public int[] getGenotype() {
+        return genotype;
+    }
 
-    public abstract void mutate();
+    public int[] getPhenotype() {
+        return phenotype;
+    }
 
-    public abstract ArrayList<Hypothesis> crossover(Hypothesis parent);
+    public abstract Hypothesis getNewChild(int[] childGenotype);
 
-    public abstract int[] getGenotype();
-
-    public abstract int[] getPhenotype();
+    public void setSigma(double sigma) {
+        this.sigma = sigma;
+    }
 }

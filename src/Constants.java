@@ -1,13 +1,15 @@
 public class Constants {
 
-    public static final double SCENE_HEIGHT = 800;
-    public static final double SCENE_WIDTH = 1820;
+    public static final double SCENE_HEIGHT = 1000;
+    public static final double SCENE_WIDTH = 1300;
+    public static final double MUTATION_RATE_ALL = 0.01;
 
-    public static int GENOTYPE_ONEMAX_SIZE = 40;
+    public static int BITSIZE = 40;
+    public static int LOLZ_THRESHOLD = 30;
 
-    public static int GENERATION_SIZE = 20;
-    public static int ADULTS_SIZE = 10;
-    public static final int ELITISM_SIZE = 1;
+    public static int GENERATION_SIZE = 40;
+    public static int ADULTS_SIZE = 20;
+    public static final int ELITISM_SIZE = (int) (GENERATION_SIZE*0.05);
     public static int PARENTS_SIZE = GENERATION_SIZE - ELITISM_SIZE;
     public static boolean MUTATION = true;
     public static boolean CROSSOVER = true;

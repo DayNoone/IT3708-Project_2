@@ -12,35 +12,41 @@
     -fx-background-color: #ecf0f1;
 }
 .button {
-    -fx-border: none;
-    -fx-font-size: 14px;
+    -fx-padding: 8px 30px;
+    -fx-margin: 10px 1px;
+    -fx-background-color: #e4e4e4;
     -fx-font-weight: 100;
-    -fx-line-height: 1.4;
-    -fx-border-radius: 4px;
-    -fx-padding: 8px 12px;
-    -fx-color: #ffffff;
-    -fx-background-color: #bdc3c7;
-    -fx-text-fill: white;
 }
 .button:hover {
-    -fx-color: #ffffff;
-    -fx-background-color: #d35400;
+    -fx-background-color: #e78127;
 }
-.button:focused {
-    -fx-focus-color: #d35400;
+.button:active {
+      -fx-background-color: #EEEEEE;
+      -fx-color: rgba(0,0,0, 0.87);
+}
+.button:pressed{
+    -fx-background-color: white;
 }
 #radioGroup {
     -fx-font-size: 14px;
 }
 
-.radio-button {
-  -fx-color: #bdc3c7;
-  -fx-margin-bottom: 12px;
-  -fx-padding-left: 32px;
-  -fx-position: relative;
-  -fx-font-size: 12px;
-  -fx-line-height: 1.5;
+.radio-button .radio {
+    -fx-padding: 4px;
 }
-.radio-button:focused {
+.radio-button .radio:selected {
+    -fx-background-color: white;
+    -fx-background-image: null;
     -fx-focus-color: transparent;
+
+}
+.radio-button .dot {
+    -fx-background-radius: 10px;
+    -fx-padding: 5px;
+}
+.radio-button:hover .radio {
+    -fx-background-color: #e78127;
+}
+#sceneTitle {
+    -fx-font-size: 18px;
 }

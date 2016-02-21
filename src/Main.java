@@ -12,8 +12,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -29,33 +27,23 @@ public class Main extends Application{
     AnimationTimer eaLoop;
 
     GridPane gridControls;
-    GridPane gridPlots;
+    Charts charts;
     int controlsRowNumber = 1;
 
     ArrayList<TextField> inputFields = new ArrayList<>();
     Console console;
-    XYChart.Series<Number, Number> series;
-    XYChart.Series<Number, Number> bestFitnessSeries;
-    XYChart.Series<Number, Number> averageFitnessSeries;
-    XYChart.Series<Number, Number> standardDeviationSeries;
-    final NumberAxis yAxis = new NumberAxis(0, 1, 0.1);
-    final NumberAxis xAxis = new NumberAxis();
-    final LineChart<Number,Number> generationFitnessPlot = new LineChart<Number,Number>(xAxis, yAxis);
-    final LineChart<Number,Number> bestFitnessPlot = new LineChart<Number,Number>(new NumberAxis(), yAxis);
-    final LineChart<Number,Number> averageFitnessPlot = new LineChart<Number,Number>(new NumberAxis(), yAxis);
-    final LineChart<Number,Number> standardDeviationPlot = new LineChart<Number,Number>(new NumberAxis(),new NumberAxis());
 
     public void start(Stage primaryStage) throws IOException {
         //--------------------------------- GUI OBJECTS ------------------------------
         primaryStage.setTitle("Evolutionary Algorithm");
 
         Text scenetitle = new Text("Settings");
-        scenetitle.setFont(Font.font("Tahoma", FontWeight.LIGHT, 20));
+        scenetitle.setId("sceneTitle");
 
         TextArea outputArea = new TextArea();
         outputArea.setStyle("-fx-focus-color: transparent;");
-        outputArea.setMinHeight(720);
-        outputArea.setMinWidth(540);
+        outputArea.setMinHeight(300);
+        outputArea.setMinWidth(1000);
         outputArea.setEditable(false);
 
         // Console for outputting information without interrupting the evolutionary cycle
@@ -63,22 +51,22 @@ public class Main extends Application{
         //--------------------------------- CONTROLS ---------------------------------
         Button oneMaxButton = new Button();
         GridPane.setHalignment(oneMaxButton, HPos.CENTER);
-        oneMaxButton.setText("Start OneMax EA");
+        oneMaxButton.setText("START ONEMAX EA");
         oneMaxButton.setOnAction(event -> startEA(Constants.algorithms.ONE_MAX));
 
         Button lolzButton = new Button();
         GridPane.setHalignment(lolzButton, HPos.CENTER);
-        lolzButton.setText("Start Lolz EA");
-        lolzButton.setOnAction(event -> startEA(Constants.algorithms.ONE_MAX));
+        lolzButton.setText("START LOLZ EA");
+        lolzButton.setOnAction(event -> startEA(Constants.algorithms.LOLZ));
 
         Button supriseButton = new Button();
         GridPane.setHalignment(supriseButton, HPos.CENTER);
-        supriseButton.setText("Start Surprise EA");
-        supriseButton.setOnAction(event -> startEA(Constants.algorithms.ONE_MAX));
+        supriseButton.setText("START SURPRISE EA");
+        supriseButton.setOnAction(event -> startEA(Constants.algorithms.SURPRISE));
 
         //--------------------------------- GUI LAYOUT -------------------------------
         gridControls = new GridPane();
-        gridControls.setMinHeight(Constants.SCENE_HEIGHT);
+        gridControls.setMinHeight(Constants.SCENE_HEIGHT-300);
         gridControls.setAlignment(Pos.TOP_CENTER);
         gridControls.setHgap(10);
         gridControls.setVgap(10);
@@ -105,55 +93,18 @@ public class Main extends Application{
         addControl(tournamentGroupSize);
         addControl(tournamentProbability);
 
-        Node oneMaxGenotypeSize = inputField("OneMax bitsize", Constants.GENOTYPE_ONEMAX_SIZE);
+        Node oneMaxGenotypeSize = inputField("OneMax bitsize", Constants.BITSIZE);
         addControl(oneMaxGenotypeSize);
 
         addControl(oneMaxButton);
         addControl(lolzButton);
         addControl(supriseButton);
 
-        gridControls.add(outputArea, 1, 1, 1, controlsRowNumber);
-
-        //--------------------------------- PLOT ------------------------------------
-        gridPlots = new GridPane();
-        gridPlots.setHgap(10);
-        gridPlots.setVgap(10);
-        gridPlots.setPadding(new Insets(25, 25, 25, 25));
-
-        generationFitnessPlot.setTitle("Population fitness");
-        generationFitnessPlot.setLegendVisible(false);
-        series = new XYChart.Series<>();
-        series.setName("My portfolio");
-        gridPlots.add(generationFitnessPlot, 0, 0);
-
-        bestFitnessSeries = new XYChart.Series<>();
-        bestFitnessPlot.setTitle("Best fitness");
-        bestFitnessPlot.setAnimated(false);
-        bestFitnessPlot.setLegendVisible(false);
-        bestFitnessPlot.setCreateSymbols(false);
-        bestFitnessPlot.setStyle("");
-        bestFitnessPlot.getData().add(bestFitnessSeries);
-        gridPlots.add(bestFitnessPlot, 1, 0);
-
-        averageFitnessSeries = new XYChart.Series<>();
-        averageFitnessPlot.setTitle("Average fitness");
-        averageFitnessPlot.setAnimated(false);
-        averageFitnessPlot.setLegendVisible(false);
-        averageFitnessPlot.setCreateSymbols(false);
-        averageFitnessPlot.getData().add(averageFitnessSeries);
-        gridPlots.add(averageFitnessPlot, 0, 1);
-
-        standardDeviationSeries = new XYChart.Series<>();
-        standardDeviationPlot.setTitle("Standard deviation");
-        standardDeviationPlot.setAnimated(false);
-        standardDeviationPlot.setLegendVisible(false);
-        standardDeviationPlot.setCreateSymbols(false);
-        standardDeviationPlot.getData().add(standardDeviationSeries);
-        gridPlots.add(standardDeviationPlot, 1, 1);
-
+        charts = new Charts();
         BorderPane root = new BorderPane();
         root.setLeft(gridControls);
-        root.setRight(gridPlots);
+        root.setRight(charts.getGrid());
+        root.setBottom(outputArea);
         Scene scene = new Scene(root, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
         scene.getStylesheets().add("style.css");
         primaryStage.setScene(scene);
@@ -177,32 +128,44 @@ public class Main extends Application{
 
     private void startEA(Constants.algorithms oneMax) {
         // To keep multiple loops from running
-        if (evolutionaryAlgorithmCycle != null && evolutionaryAlgorithmCycle.isRunning()) {
+        if (eaLoop != null) {
             eaLoop.stop();
         }
         evolutionaryAlgorithmCycle = null;
         updateConstants();
         ArrayList<Hypothesis> initialGeneration = initializeGeneration(oneMax);
         evolutionaryAlgorithmCycle = new EA(initialGeneration);
-        clearPlots();
+        charts.clearPlots();
 
         eaLoop = new AnimationTimer() {
             public void handle(long now) {
                 if(evolutionaryAlgorithmCycle.isRunning()){
-                    evolutionaryAlgorithmCycle.iteration();
-                    updateLinechart();
-                    double averageFitness = evolutionaryAlgorithmCycle.getAverageFitness(evolutionaryAlgorithmCycle.population);
+                    evolutionaryAlgorithmCycle.development();
                     Hypothesis fittest = evolutionaryAlgorithmCycle.getFittest(evolutionaryAlgorithmCycle.population);
+                    if (fittest.getFitness() == 1) {
+                        evolutionaryAlgorithmCycle.solutionFound = true;
+                        evolutionaryAlgorithmCycle.setRunning(false);
+                    }
+                    evolutionaryAlgorithmCycle.generationNumber++;
+
+                    charts.updateLinechart(evolutionaryAlgorithmCycle);
+                    double averageFitness = evolutionaryAlgorithmCycle.getAverageFitness(evolutionaryAlgorithmCycle.population);
+                    fittest = evolutionaryAlgorithmCycle.getFittest(evolutionaryAlgorithmCycle.population);
+
                     console.writeStringln("Gen: " + evolutionaryAlgorithmCycle.getGenerationNumber() +
                             "\t Best: " + String.format("%.2f", fittest.getFitness()) +
-                            "\t Pop: " + evolutionaryAlgorithmCycle.population.size() + " - " + Constants.ADULTS_SIZE + " - " + Constants.PARENTS_SIZE +
+                            "\t Pop: " + "Po-" +  evolutionaryAlgorithmCycle.population.size() + " A-" + Constants.ADULTS_SIZE + " Pa-" + Constants.PARENTS_SIZE + " E-" + Constants.ELITISM_SIZE +
                             "\t Avg fitness: " + String.format("%.2f", averageFitness) +
                             "\t SD: " + String.format("%.3f", evolutionaryAlgorithmCycle.getStandardDeviation(evolutionaryAlgorithmCycle.population, averageFitness)) +
-                            "\t Pheno: " + Arrays.toString(fittest.getPhenotype()));
+                            " \t Pheno: " + Arrays.toString(fittest.getPhenotype()));
                     if (evolutionaryAlgorithmCycle.getSolution()) {
                         console.writeStringln("--------------------------------- Solution found ---------------------------------");
+                        console.writeStringln(Arrays.toString(fittest.getPhenotype()));
                         eaLoop.stop();
                     }
+                    evolutionaryAlgorithmCycle.adultSelection();
+                    evolutionaryAlgorithmCycle.parentSelection();
+                    evolutionaryAlgorithmCycle.reproduction();
                 }
             }
         };
@@ -234,7 +197,7 @@ public class Main extends Application{
                     Constants.TOURNAMENT_PROBABILITY = value;
                     break;
                 case 6:
-                    Constants.GENOTYPE_ONEMAX_SIZE = value.intValue();
+                    Constants.BITSIZE = value.intValue();
                     break;
             }
         }
@@ -248,37 +211,14 @@ public class Main extends Application{
                     initialGeneration.add(new OneMaxHypothesis());
                     break;
                 case LOLZ:
-                    //initialGeneration.add(new LolzHypothesis());
+                    initialGeneration.add(new LolzHypothesis());
                     break;
                 case SURPRISE:
-                    //initialGeneration.add(new SurpriseHypothesis());
+                    initialGeneration.add(new SurprisingHypothesis());
                     break;
             }
         }
         return initialGeneration;
-    }
-
-    // ---------------------- PLOTS --------------------
-    private void updateLinechart() {
-        ArrayList<Hypothesis> population = evolutionaryAlgorithmCycle.population;
-        generationFitnessPlot.getData().retainAll();
-        generationFitnessPlot.setAnimated(false);
-        series = new XYChart.Series<>();
-        for (int i = 0; i < population.size(); i++){
-            series.getData().add(new XYChart.Data<>(i, (population.get(i)).getFitness()));
-        }
-        generationFitnessPlot.getData().add(series);
-
-
-        double averageFitness = evolutionaryAlgorithmCycle.getAverageFitness(population);
-        bestFitnessSeries.getData().add(new XYChart.Data<>(evolutionaryAlgorithmCycle.getGenerationNumber(), (evolutionaryAlgorithmCycle.getFittest(population)).getFitness()));
-        averageFitnessSeries.getData().add(new XYChart.Data<>(evolutionaryAlgorithmCycle.getGenerationNumber(), averageFitness));
-        standardDeviationSeries.getData().add(new XYChart.Data<>(evolutionaryAlgorithmCycle.getGenerationNumber(), (evolutionaryAlgorithmCycle.getStandardDeviation(population, averageFitness))));
-    }
-    private void clearPlots() {
-        bestFitnessSeries.getData().retainAll();
-        averageFitnessSeries.getData().retainAll();
-        standardDeviationSeries.getData().retainAll();
     }
 
     // ------------------- I/O ------------------------
@@ -291,11 +231,8 @@ public class Main extends Application{
         }
 
         public void writeStringln(String text) {
-            for (char letter : text.toCharArray()) {
-                output.appendText(String.valueOf((char) letter));
-            }
-            output.appendText("\n");
-    }
+            output.appendText(text + "\n");
+        }
 
         @Override
         public void write(int i) throws IOException {
@@ -328,7 +265,6 @@ public class Main extends Application{
                 } else if (new_toggle == generationalMixing) {
                     Constants.ADULT_SELECTION = Constants.adultSelection.GENERATIONAL_MIXING;
                 }
-                console.writeStringln("ADULT: " + Constants.ADULT_SELECTION);
             }
         });
         addControl(adultSelectionLabel);
@@ -345,9 +281,9 @@ public class Main extends Application{
         fitnessProportionate.setToggleGroup(parentSelectionRadio);
         RadioButton sigmaScaling= new RadioButton("Sigma scaling");
         sigmaScaling.setToggleGroup(parentSelectionRadio);
+        sigmaScaling.setSelected(true);
         RadioButton tournamentSelection = new RadioButton("Tournament selection");
         tournamentSelection.setToggleGroup(parentSelectionRadio);
-        tournamentSelection.setSelected(true);
         RadioButton uniformSelection = new RadioButton("Uniform selection");
         uniformSelection.setToggleGroup(parentSelectionRadio);
         parentSelectionRadio.selectedToggleProperty().addListener((ov, old_toggle, new_toggle) -> {
@@ -361,7 +297,6 @@ public class Main extends Application{
                 } else if (new_toggle == uniformSelection) {
                     Constants.PARENT_SELECTION = Constants.parentSelection.UNIFORM_SELECTION;
                 }
-                console.writeStringln("PARENT: " + Constants.PARENT_SELECTION);
             }
         });
         addControl(parentSelectionLabel);
