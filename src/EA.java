@@ -2,30 +2,22 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class EA implements EvolutionaryCycle{
-    int generationNumber;
-    Boolean running;
-    ArrayList<Hypothesis> population;
-    ArrayList<Hypothesis> adults = new ArrayList<Hypothesis>();
-    ArrayList<Hypothesis> parents = new ArrayList<Hypothesis>();
+    private int generationNumber;
+    private Boolean running;
+    private ArrayList<Hypothesis> population;
+    private ArrayList<Hypothesis> adults = new ArrayList<Hypothesis>();
+    private ArrayList<Hypothesis> parents = new ArrayList<Hypothesis>();
 
-    Boolean solutionFound = false;
+    private Boolean solutionFound = false;
 
     private Random random = new Random();
+    private boolean solution;
 
     public EA(ArrayList<Hypothesis> initialGeneration){
         population = initialGeneration;
         running = true;
 
         generationNumber = 0;
-    }
-    public void stopCycle() {
-        running = false;
-    }
-    public void restartCycle(ArrayList<Hypothesis> initialGeneration) {
-        // Could be replaced by just creating new EA
-        population = initialGeneration;
-        generationNumber = 0;
-        running = true;
     }
 
     public void development() {
@@ -39,7 +31,6 @@ public class EA implements EvolutionaryCycle{
     @Override
     public void adultSelection() {
         ArrayList<Hypothesis> tempPopulation = new ArrayList<Hypothesis>(population);
-        double totalFitness;
         switch (Constants.ADULT_SELECTION){
             case FULL_GENERATION:
                 adults.clear();
@@ -279,5 +270,13 @@ public class EA implements EvolutionaryCycle{
     }
     public boolean getSolution() {
         return solutionFound;
+    }
+
+    public void setSolution(boolean solution) {
+        this.solution = solution;
+    }
+
+    public void incrementGenerationNumber() {
+        generationNumber++;
     }
 }

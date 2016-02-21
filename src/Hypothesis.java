@@ -18,14 +18,18 @@ public abstract class Hypothesis {
     }
     public abstract void calculateFitness();
 
+    public abstract void development();
+
     public double getFitness() {
         return fitness;
     }
 
-    public abstract void development();
-
     public double getSigma() {
         return sigma;
+    }
+
+    public void setSigma(double sigma) {
+        this.sigma = sigma;
     }
 
     public int[] getGenotype() {
@@ -38,7 +42,5 @@ public abstract class Hypothesis {
 
     public abstract Hypothesis getNewChild(int[] childGenotype);
 
-    public void setSigma(double sigma) {
-        this.sigma = sigma;
-    }
+
 }

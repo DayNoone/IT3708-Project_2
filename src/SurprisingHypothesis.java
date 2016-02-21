@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 public class SurprisingHypothesis extends Hypothesis {
     public SurprisingHypothesis(int[] parentGenotype) {
         super(parentGenotype);
