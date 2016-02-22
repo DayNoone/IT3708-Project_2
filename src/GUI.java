@@ -7,6 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -18,7 +19,7 @@ public class GUI {
     GridPane gridControls;
     Charts charts;
     int controlsRowNumber = 1;
-
+    int controlsColNumber = 1;
     ArrayList<TextField> inputFields = new ArrayList<>();
     Console console;
 
@@ -31,8 +32,7 @@ public class GUI {
 
         TextArea outputArea = new TextArea();
         outputArea.setStyle("-fx-focus-color: transparent;");
-        outputArea.setMinHeight(300);
-        outputArea.setMinWidth(1000);
+        outputArea.setPrefHeight(300);
         outputArea.setEditable(false);
 
         // Console for outputting information without interrupting the evolutionary cycle
@@ -41,23 +41,28 @@ public class GUI {
         Button oneMaxButton = new Button();
         GridPane.setHalignment(oneMaxButton, HPos.CENTER);
         oneMaxButton.setText("START ONEMAX EA");
+        oneMaxButton.setPrefWidth(Constants.GUI_BUTTON_WIDTH);
+        oneMaxButton.setPrefHeight(Constants.GUI_BUTTON_HEIGHT);
         oneMaxButton.setOnAction(event -> main.startEA(Constants.algorithms.ONE_MAX));
 
         Button lolzButton = new Button();
         GridPane.setHalignment(lolzButton, HPos.CENTER);
         lolzButton.setText("START LOLZ EA");
+        lolzButton.setPrefWidth(Constants.GUI_BUTTON_WIDTH);
+        lolzButton.setPrefHeight(Constants.GUI_BUTTON_HEIGHT);
         lolzButton.setOnAction(event -> main.startEA(Constants.algorithms.LOLZ));
 
         Button supriseButton = new Button();
         GridPane.setHalignment(supriseButton, HPos.CENTER);
         supriseButton.setText("START SURPRISE EA");
+        supriseButton.setPrefWidth(Constants.GUI_BUTTON_WIDTH);
+        supriseButton.setPrefHeight(Constants.GUI_BUTTON_HEIGHT);
         supriseButton.setOnAction(event -> main.startEA(Constants.algorithms.SURPRISE));
 
         //--------------------------------- GUI LAYOUT -------------------------------
         gridControls = new GridPane();
-        gridControls.setMinHeight(Constants.SCENE_HEIGHT-300);
         gridControls.setAlignment(Pos.TOP_CENTER);
-        gridControls.setHgap(10);
+        gridControls.setHgap(30);
         gridControls.setVgap(10);
         gridControls.setPadding(new Insets(25, 25, 25, 25));
 
@@ -65,29 +70,43 @@ public class GUI {
 
         Node generationSize = inputField("Generation size", Constants.GENERATION_SIZE);
         Node adultSize = inputField("Adult size", Constants.ADULTS_SIZE);
-        Node mutationRateField = inputField("Mutation rate", Constants.MUTATION_RATE);
+        Node mutationRateField = inputField("One bit mutation rate", Constants.MUTATION_RATE);
+        Node mutationRateAllField = inputField("All bits mutation rate", Constants.MUTATION_RATE_ALL);
         Node crossoverRate = inputField("Crossover rate", Constants.CROSSOVER_RATE);
-
-
-        addControl(generationSize);
-        addControl(adultSize);
-        addControl(mutationRateField);
-        addControl(crossoverRate);
-
-        addAdultSelectionRadio();
-        addParentSelectionRadio();
 
         Node tournamentGroupSize = inputField("Tournament group size", Constants.TOURNAMENT_GROUP_SIZE);
         Node tournamentProbability = inputField("Tournament probability", Constants.TOURNAMENT_PROBABILITY);
-        addControl(tournamentGroupSize);
-        addControl(tournamentProbability);
+        Node oneMaxGenotypeSize = inputField("Bitsize", Constants.BITSIZE);
+        Node lolzThreshold = inputField("Lolz Threshold", Constants.LOLZ_THRESHOLD);
 
-        Node oneMaxGenotypeSize = inputField("OneMax bitsize", Constants.BITSIZE);
-        addControl(oneMaxGenotypeSize);
 
-        addControl(oneMaxButton);
-        addControl(lolzButton);
-        addControl(supriseButton);
+        addControl(generationSize, 1);
+        addControl(adultSize, 1);
+        addControl(mutationRateField, 1);
+        addControl(mutationRateAllField, 1);
+        addControl(crossoverRate, 1);
+        controlsRowNumber++;
+
+        addAdultSelectionRadio();
+        controlsRowNumber++;
+        addParentSelectionRadio();
+
+        VBox spacing = new VBox();
+        spacing.setMinHeight(0);
+        addControl(spacing, 2);
+        addControl(oneMaxButton, 2);
+        addControl(lolzButton, 2);
+        addControl(supriseButton, 2);
+
+        // New controls column
+        controlsColNumber++;
+        controlsRowNumber = 1;
+
+        addControl(oneMaxGenotypeSize, 1);
+        addControl(lolzThreshold, 1);
+        addControl(tournamentGroupSize, 1);
+        addControl(tournamentProbability, 1);
+
 
         charts = new Charts();
         BorderPane root = new BorderPane();
@@ -115,16 +134,21 @@ public class GUI {
                     Constants.MUTATION_RATE = value;
                     break;
                 case 3:
+                    Constants.MUTATION_RATE_ALL = value;
+                case 4:
                     Constants.CROSSOVER_RATE = value;
                     break;
-                case 4:
+                case 5:
                     Constants.TOURNAMENT_GROUP_SIZE = value.intValue();
                     break;
-                case 5:
+                case 6:
                     Constants.TOURNAMENT_PROBABILITY = value;
                     break;
-                case 6:
+                case 7:
                     Constants.BITSIZE = value.intValue();
+                    break;
+                case 8:
+                    Constants.LOLZ_THRESHOLD = value.intValue();
                     break;
             }
         }
@@ -149,8 +173,8 @@ public class GUI {
         }
     }
 
-    public void addControl(Node node){
-        gridControls.add(node, 0, controlsRowNumber);
+    public void addControl(Node node, int colSpan){
+        gridControls.add(node, controlsColNumber, controlsRowNumber, colSpan, 1);
         controlsRowNumber++;
     }
 
@@ -190,10 +214,10 @@ public class GUI {
                 }
             }
         });
-        addControl(adultSelectionLabel);
-        addControl(fullGeneration);
-        addControl(overproduction);
-        addControl(generationalMixing);
+        addControl(adultSelectionLabel, 1);
+        addControl(fullGeneration, 1);
+        addControl(overproduction, 1);
+        addControl(generationalMixing, 1);
     }
 
     private void addParentSelectionRadio() {
@@ -222,10 +246,10 @@ public class GUI {
                 }
             }
         });
-        addControl(parentSelectionLabel);
-        addControl(fitnessProportionate);
-        addControl(sigmaScaling);
-        addControl(tournamentSelection);
-        addControl(uniformSelection);
+        addControl(parentSelectionLabel, 1);
+        addControl(fitnessProportionate, 1);
+        addControl(sigmaScaling, 1);
+        addControl(tournamentSelection, 1);
+        addControl(uniformSelection, 1);
     }
 }

@@ -11,7 +11,6 @@ public class EA implements EvolutionaryCycle{
     private Boolean solutionFound = false;
 
     private Random random = new Random();
-    private boolean solution;
 
     public EA(ArrayList<Hypothesis> initialGeneration){
         population = initialGeneration;
@@ -273,7 +272,7 @@ public class EA implements EvolutionaryCycle{
     }
 
     public void setSolution(boolean solution) {
-        this.solution = solution;
+        this.solutionFound = solution;
     }
 
     public void incrementGenerationNumber() {
