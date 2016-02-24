@@ -39,17 +39,18 @@ public class Main extends Application{
                     if (Constants.CHARTS){
                         gui.charts.updateLinechart(ea);
                     }
+                    double averageFitness = ea.getAverageFitness(ea.getPopulation());
                     fittest = ea.getFittest(ea.getPopulation());
-                    if (ea.getGenerationNumber() % 100 == 0 && !Constants.CONSOLE){
+                    if (Constants.CONSOLE) {
+                        gui.console.writeStringln("Gen: " + ea.getGenerationNumber() +
+                                "\t Best: " + String.format("%.2f", fittest.getFitness()) +
+                                "\t Pop: " + "Po-" +  ea.getPopulation().size() + " A-" + Constants.ADULTS_SIZE + " Pa-" + Constants.PARENTS_SIZE + " E-" + Constants.ELITISM_SIZE +
+                                "\t Avg fitness: " + String.format("%.2f", averageFitness) +
+                                "\t SD: " + String.format("%.3f", ea.getStandardDeviation(ea.getPopulation(), averageFitness)) +
+                                " \t Pheno: " + Arrays.toString(fittest.getPhenotype()));
+                    } else if(ea.getGenerationNumber() % 100 == 0) {
                         gui.console.writeStringln("Generation: " + ea.getGenerationNumber());
                     }
-
-                    /*gui.console.writeStringln("Gen: " + ea.getGenerationNumber() +
-                            "\t Best: " + String.format("%.2f", fittest.getFitness()) +
-                            "\t Pop: " + "Po-" +  ea.getPopulation().size() + " A-" + Constants.ADULTS_SIZE + " Pa-" + Constants.PARENTS_SIZE + " E-" + Constants.ELITISM_SIZE +
-                            "\t Avg fitness: " + String.format("%.2f", averageFitness) +
-                            "\t SD: " + String.format("%.3f", ea.getStandardDeviation(ea.getPopulation(), averageFitness)) +
-                            " \t Pheno: " + Arrays.toString(fittest.getPhenotype()));*/
                     if (ea.getSolution()) {
                         gui.console.writeStringln("--------------------------------- Solution found ---------------------------------");
                         gui.console.writeStringln("Generation number: "+ea.getGenerationNumber());
