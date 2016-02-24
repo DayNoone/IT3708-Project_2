@@ -14,13 +14,14 @@ public abstract class Hypothesis {
         calculateFitness();
     }
     public Hypothesis(){
-
+        for (int i = 0; i < Constants.BITSIZE; i++){
+            genotype[i] = random.nextInt(2);
+        }
+        this.phenotype = new int[Constants.BITSIZE];
     }
     public abstract void calculateFitness();
 
-    public void development(){
-        this.phenotype = this.genotype;
-    }
+    public abstract void development();
 
     public void mutate() {
         if (random.nextDouble() < Constants.MUTATION_RATE_ALL) {

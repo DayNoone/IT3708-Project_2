@@ -3,10 +3,7 @@ public class LolzHypothesis extends Hypothesis {
         super(parentGenotype);
     }
     public LolzHypothesis() {
-        for (int i = 0; i < Constants.BITSIZE; i++){
-            genotype[i] = random.nextInt(2);
-        }
-        this.phenotype = new int[Constants.BITSIZE];
+        super();
     }
 
     public void calculateFitness() {
@@ -25,6 +22,11 @@ public class LolzHypothesis extends Hypothesis {
         }
         this.fitness = (tempFitness/getPhenotype().length);
     }
+
+    public void development(){
+        this.phenotype = this.genotype;
+    }
+
     public void calculateFitness2(){
         double leadingBit = getPhenotype()[0];
         double leadingCount = 0.0;

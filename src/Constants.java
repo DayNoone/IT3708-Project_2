@@ -3,7 +3,7 @@ public class Constants {
     public static boolean GLOBAL = true;
     // Problem spesific
     public static int BITSIZE = 40;
-    public static int LOLZ_THRESHOLD = 30;
+    public static int LOLZ_THRESHOLD = 21;
     public static int SUPRISING_SYMBOL_SIZE = 10;
 
     // Population size
@@ -23,8 +23,8 @@ public class Constants {
     public static int TOURNAMENT_GROUP_SIZE = 5;
     public static double TOURNAMENT_PROBABILITY = 0.5;
 
-    public static adultSelection ADULT_SELECTION = adultSelection.GENERATIONAL_MIXING;
-    public static parentSelection PARENT_SELECTION = parentSelection.SIGMA_SCALING;
+    public static adultSelection ADULT_SELECTION = adultSelection.FULL_GENERATION;
+    public static parentSelection PARENT_SELECTION = parentSelection.FITNESS_PROPORTIONATE;
 
     public enum adultSelection{
         FULL_GENERATION, OVER_PRODUCTION, GENERATIONAL_MIXING;

@@ -34,7 +34,8 @@ public class Charts {
         bestFitnessSeries = new XYChart.Series<>();
         bestFitnessPlot.setTitle("Best fitness");
         bestFitnessPlot.setAnimated(false);
-        bestFitnessPlot.setLegendVisible(false);
+        bestFitnessSeries.setName("M: " + Constants.MUTATION_RATE + ", C: " + Constants.CROSSOVER_RATE);
+        bestFitnessPlot.setLegendVisible(true);
         bestFitnessPlot.setCreateSymbols(false);
         bestFitnessPlot.setStyle("");
         bestFitnessPlot.getData().add(bestFitnessSeries);
@@ -63,9 +64,6 @@ public class Charts {
     public void updateLinechart(EA evolutionaryAlgorithmCycle) {
         ArrayList<Hypothesis> population = evolutionaryAlgorithmCycle.getPopulation();
 
-
-        if (population.size() < 100 || evolutionaryAlgorithmCycle.getGenerationNumber() % 10 == 0) {
-        }
         generationFitnessPlot.getData().retainAll();
         generationFitnessPlot.setAnimated(false);
         series = new XYChart.Series<>();
@@ -84,5 +82,10 @@ public class Charts {
         bestFitnessSeries.getData().retainAll();
         averageFitnessSeries.getData().retainAll();
         standardDeviationSeries.getData().retainAll();
+    }
+    public void bestFitnessSeriesPlot(EA evolutionaryAlgorithmCycle){
+        bestFitnessSeries = new XYChart.Series<>();
+        bestFitnessSeries.setName("M: " + Constants.MUTATION_RATE + ", C: " + Constants.CROSSOVER_RATE);
+        bestFitnessPlot.getData().add(bestFitnessSeries);
     }
 }

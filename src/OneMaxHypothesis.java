@@ -2,15 +2,26 @@ import java.util.Arrays;
 
 public class OneMaxHypothesis extends Hypothesis {
 
+    //static int[] targetBitstring = {1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1};
     public OneMaxHypothesis(int[] parentGenotype) {
         super(parentGenotype);
     }
 
     public OneMaxHypothesis(){
-        for (int i = 0; i < Constants.BITSIZE; i++){
-            genotype[i] = random.nextInt(2);
+        super();
+    }
+    /*public void calculateFitness2(){
+        double rightCount = 0;
+        for (int i = 0; i < phenotype.length; i++){
+            if(phenotype[i] == targetBitstring[i]){
+                rightCount++;
+            }
         }
-        this.phenotype = new int[Constants.BITSIZE];
+        this.fitness = rightCount / phenotype.length;
+    }*/
+
+    public void development(){
+        this.phenotype = this.genotype;
     }
 
     public void calculateFitness(){

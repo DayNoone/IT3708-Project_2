@@ -9,6 +9,7 @@ public class Main extends Application{
     EA ea;
     GUI gui;
     AnimationTimer eaLoop;
+    long startTime;
 
     public void start(Stage primaryStage) throws IOException {
         gui = new GUI(this, primaryStage);
@@ -23,6 +24,7 @@ public class Main extends Application{
         gui.updateConstants();
         ArrayList<Hypothesis> initialGeneration = initializeGeneration(oneMax);
         ea = new EA(initialGeneration);
+        startTime = System.currentTimeMillis();
         gui.charts.clearPlots();
 
         eaLoop = new AnimationTimer() {
@@ -43,18 +45,28 @@ public class Main extends Application{
                     fittest = ea.getFittest(ea.getPopulation());
                     if (Constants.CONSOLE) {
                         gui.console.writeStringln("Gen: " + ea.getGenerationNumber() +
-                                "\t Best: " + String.format("%.2f", fittest.getFitness()) +
+                                "\t Best: " + String.format("%.3f", fittest.getFitness()) +
                                 "\t Pop: " + "Po-" +  ea.getPopulation().size() + " A-" + Constants.ADULTS_SIZE + " Pa-" + Constants.PARENTS_SIZE + " E-" + Constants.ELITISM_SIZE +
                                 "\t Avg fitness: " + String.format("%.2f", averageFitness) +
                                 "\t SD: " + String.format("%.3f", ea.getStandardDeviation(ea.getPopulation(), averageFitness)) +
                                 " \t Pheno: " + Arrays.toString(fittest.getPhenotype()));
                     } else if(ea.getGenerationNumber() % 100 == 0) {
-                        gui.console.writeStringln("Generation: " + ea.getGenerationNumber());
+                        gui.console.writeStringln("Generation: " + ea.getGenerationNumber() + "\t Best fitness: " + String.format("%.2f", fittest.getFitness()));
                     }
                     if (ea.getSolution()) {
                         gui.console.writeStringln("--------------------------------- Solution found ---------------------------------");
-                        gui.console.writeStringln("Generation number: "+ea.getGenerationNumber());
+                        long endTime = System.currentTimeMillis();
+                        long milliseconds = endTime - startTime;
+                        int minutes = (int) ((milliseconds / (1000*60)) % 60);
+                        int seconds = (int) (milliseconds / 1000) % 60 ;
                         gui.console.writeStringln(Arrays.toString(fittest.getPhenotype()));
+                        gui.console.writeStringln("\nTook " + minutes + " minutes and " + seconds + " seconds.");
+                        gui.console.writeStringln("Gen: " + ea.getGenerationNumber() +
+                                "\t Best: " + String.format("%.3f", fittest.getFitness()) +
+                                "\t Pop: " + "Po-" +  ea.getPopulation().size() + " A-" + Constants.ADULTS_SIZE + " Pa-" + Constants.PARENTS_SIZE + " E-" + Constants.ELITISM_SIZE +
+                                "\t Avg fitness: " + String.format("%.2f", averageFitness) +
+                                "\t SD: " + String.format("%.3f", ea.getStandardDeviation(ea.getPopulation(), averageFitness)));
+                        gui.charts.updateLinechart(ea);
                         eaLoop.stop();
                     }
                     ea.adultSelection();

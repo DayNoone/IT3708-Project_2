@@ -76,7 +76,10 @@ public class SurprisingHypothesis extends Hypothesis {
         }
     }
 
-    @Override
+    public void development(){
+        this.phenotype = this.genotype;
+    }
+
     public Hypothesis getNewChild(int[] childGenotype) {
         return new SurprisingHypothesis(childGenotype);
     }

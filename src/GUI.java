@@ -226,7 +226,6 @@ public class GUI {
         RadioButton overproduction = new RadioButton("Overproduction");
         overproduction.setToggleGroup(adultSelectionRadio);
         RadioButton generationalMixing = new RadioButton("Generational mixing");
-        generationalMixing.setSelected(true);
         generationalMixing.setToggleGroup(adultSelectionRadio);
         adultSelectionRadio.selectedToggleProperty().addListener((ov, old_toggle, new_toggle) -> {
             if (adultSelectionRadio.getSelectedToggle() != null) {
@@ -239,6 +238,18 @@ public class GUI {
                 }
             }
         });
+        switch (Constants.ADULT_SELECTION){
+            case FULL_GENERATION:
+                fullGeneration.setSelected(true);
+                break;
+            case OVER_PRODUCTION:
+                overproduction.setSelected(true);
+                break;
+            case GENERATIONAL_MIXING:
+                generationalMixing.setSelected(true);
+                break;
+        }
+
         addControl(adultSelectionLabel, 1);
         addControl(fullGeneration, 1);
         addControl(overproduction, 1);
@@ -253,7 +264,6 @@ public class GUI {
         fitnessProportionate.setToggleGroup(parentSelectionRadio);
         RadioButton sigmaScaling= new RadioButton("Sigma scaling");
         sigmaScaling.setToggleGroup(parentSelectionRadio);
-        sigmaScaling.setSelected(true);
         RadioButton tournamentSelection = new RadioButton("Tournament selection");
         tournamentSelection.setToggleGroup(parentSelectionRadio);
         RadioButton uniformSelection = new RadioButton("Uniform selection");
@@ -271,6 +281,21 @@ public class GUI {
                 }
             }
         });
+
+        switch (Constants.PARENT_SELECTION){
+            case FITNESS_PROPORTIONATE:
+                fitnessProportionate.setSelected(true);
+                break;
+            case SIGMA_SCALING:
+                sigmaScaling.setSelected(true);
+                break;
+            case TOURNAMENT_SELECTION:
+                tournamentSelection.setSelected(true);
+                break;
+            case UNIFORM_SELECTION:
+                uniformSelection.setSelected(true);
+        }
+
         addControl(parentSelectionLabel, 1);
         addControl(fitnessProportionate, 1);
         addControl(sigmaScaling, 1);
