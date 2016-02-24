@@ -23,7 +23,6 @@ public class EA implements EvolutionaryCycle{
         for(Hypothesis hyp: population) {
             hyp.development();
             hyp.calculateFitness();
-            System.out.println("");
         }
     }
 
@@ -173,7 +172,7 @@ public class EA implements EvolutionaryCycle{
                     ArrayList<Hypothesis> children = crossover(parent1, parent2);
                     if (Constants.MUTATION) {
                         for (Hypothesis child: children){
-                            mutate(child);
+                            child.mutate();
                         }
                     }
                     population.addAll(children);
@@ -205,20 +204,6 @@ public class EA implements EvolutionaryCycle{
         return children;
     }
 
-    public void mutate(Hypothesis hypothesis) {
-        if (random.nextDouble() < Constants.MUTATION_RATE_ALL) {
-            for (int i = 0; i < Constants.BITSIZE; i++) {
-                hypothesis.getGenotype()[i] = hypothesis.getGenotype()[i] == 0 ? 1 : 0;
-            }
-        } else {
-            for (int i = 0; i < Constants.BITSIZE; i++) {
-                if (random.nextDouble() < Constants.MUTATION_RATE) {
-                    hypothesis.getGenotype()[i] = hypothesis.getGenotype()[i] == 0 ? 1 : 0;
-                }
-            }
-        }
-
-    }
     public Hypothesis getFittest(ArrayList<Hypothesis> population) {
         Hypothesis bestHypothesis = population.get(0);
         for (Hypothesis hypothesis: population){
@@ -236,7 +221,11 @@ public class EA implements EvolutionaryCycle{
         return total;
     }
     private void calculateSigma(Hypothesis hypothesis, double averageFitness, double standardDeviation){
-        hypothesis.setSigma(1 + ((hypothesis.getFitness() - averageFitness) / (2 * standardDeviation)));
+        if(standardDeviation == 0) {
+            hypothesis.setSigma(1);
+        } else {
+            hypothesis.setSigma(1 + ((hypothesis.getFitness() - averageFitness) / (2 * standardDeviation)));
+        }
     }
     private double getTotalSigma(ArrayList<Hypothesis> population) {
         double total = 0;

@@ -63,15 +63,16 @@ public class Charts {
     public void updateLinechart(EA evolutionaryAlgorithmCycle) {
         ArrayList<Hypothesis> population = evolutionaryAlgorithmCycle.getPopulation();
 
+
         if (population.size() < 100 || evolutionaryAlgorithmCycle.getGenerationNumber() % 10 == 0) {
-            generationFitnessPlot.getData().retainAll();
-            generationFitnessPlot.setAnimated(false);
-            series = new XYChart.Series<>();
-            for (int i = 0; i < population.size(); i++){
-                series.getData().add(new XYChart.Data<>(i, (population.get(i)).getFitness()));
-            }
-            generationFitnessPlot.getData().add(series);
         }
+        generationFitnessPlot.getData().retainAll();
+        generationFitnessPlot.setAnimated(false);
+        series = new XYChart.Series<>();
+        for (int i = 0; i < population.size(); i++){
+            series.getData().add(new XYChart.Data<>(i, (population.get(i)).getFitness()));
+        }
+        generationFitnessPlot.getData().add(series);
 
 
         double averageFitness = evolutionaryAlgorithmCycle.getAverageFitness(population);

@@ -7,7 +7,7 @@ public class OneMaxHypothesis extends Hypothesis {
     }
 
     public OneMaxHypothesis(){
-        for (int i = 0; i < genotype.length; i++){
+        for (int i = 0; i < Constants.BITSIZE; i++){
             genotype[i] = random.nextInt(2);
         }
         this.phenotype = new int[Constants.BITSIZE];
@@ -23,10 +23,6 @@ public class OneMaxHypothesis extends Hypothesis {
 
     public OneMaxHypothesis getNewChild(int[] childGenotype){
         return new OneMaxHypothesis(childGenotype);
-    }
-
-    public void development(){
-        this.phenotype = this.genotype;
     }
 
     public String toString(){

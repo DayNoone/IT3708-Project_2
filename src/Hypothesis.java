@@ -18,7 +18,23 @@ public abstract class Hypothesis {
     }
     public abstract void calculateFitness();
 
-    public abstract void development();
+    public void development(){
+        this.phenotype = this.genotype;
+    }
+
+    public void mutate() {
+        if (random.nextDouble() < Constants.MUTATION_RATE_ALL) {
+            for (int i = 0; i < Constants.BITSIZE; i++) {
+                this.getGenotype()[i] = this.getGenotype()[i] == 0 ? 1 : 0;
+            }
+        } else {
+            for (int i = 0; i < Constants.BITSIZE; i++) {
+                if (random.nextDouble() < Constants.MUTATION_RATE) {
+                    this.getGenotype()[i] = this.getGenotype()[i] == 0 ? 1 : 0;
+                }
+            }
+        }
+    }
 
     public double getFitness() {
         return fitness;

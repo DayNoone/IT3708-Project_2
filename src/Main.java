@@ -36,18 +36,23 @@ public class Main extends Application{
                     }
                     ea.incrementGenerationNumber();
 
-                    gui.charts.updateLinechart(ea);
-                    double averageFitness = ea.getAverageFitness(ea.getPopulation());
+                    if (Constants.CHARTS){
+                        gui.charts.updateLinechart(ea);
+                    }
                     fittest = ea.getFittest(ea.getPopulation());
+                    if (ea.getGenerationNumber() % 100 == 0 && !Constants.CONSOLE){
+                        gui.console.writeStringln("Generation: " + ea.getGenerationNumber());
+                    }
 
-                    gui.console.writeStringln("Gen: " + ea.getGenerationNumber() +
+                    /*gui.console.writeStringln("Gen: " + ea.getGenerationNumber() +
                             "\t Best: " + String.format("%.2f", fittest.getFitness()) +
                             "\t Pop: " + "Po-" +  ea.getPopulation().size() + " A-" + Constants.ADULTS_SIZE + " Pa-" + Constants.PARENTS_SIZE + " E-" + Constants.ELITISM_SIZE +
                             "\t Avg fitness: " + String.format("%.2f", averageFitness) +
                             "\t SD: " + String.format("%.3f", ea.getStandardDeviation(ea.getPopulation(), averageFitness)) +
-                            " \t Pheno: " + Arrays.toString(fittest.getPhenotype()));
+                            " \t Pheno: " + Arrays.toString(fittest.getPhenotype()));*/
                     if (ea.getSolution()) {
                         gui.console.writeStringln("--------------------------------- Solution found ---------------------------------");
+                        gui.console.writeStringln("Generation number: "+ea.getGenerationNumber());
                         gui.console.writeStringln(Arrays.toString(fittest.getPhenotype()));
                         eaLoop.stop();
                     }

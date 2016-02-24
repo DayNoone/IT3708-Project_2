@@ -78,6 +78,19 @@ public class GUI {
         Node tournamentProbability = inputField("Tournament probability", Constants.TOURNAMENT_PROBABILITY);
         Node oneMaxGenotypeSize = inputField("Bitsize", Constants.BITSIZE);
         Node lolzThreshold = inputField("Lolz Threshold", Constants.LOLZ_THRESHOLD);
+        Node surprisingSize = inputField("Surprising symbol size", Constants.SUPRISING_SYMBOL_SIZE);
+
+        CheckBox surprisingLocal = new CheckBox("Global");
+        surprisingLocal.setSelected(Constants.GLOBAL);
+        surprisingLocal.setOnAction(event -> Constants.GLOBAL = surprisingLocal.isSelected());
+
+        CheckBox chartsCheckbox = new CheckBox("Show charts");
+        chartsCheckbox.setSelected(Constants.CHARTS);
+        chartsCheckbox.setOnAction(event -> Constants.CHARTS = chartsCheckbox.isSelected());
+
+        CheckBox consoleCheckbox = new CheckBox("Show console");
+        consoleCheckbox.setSelected(Constants.CONSOLE);
+        consoleCheckbox.setOnAction(event -> Constants.CONSOLE = consoleCheckbox.isSelected());
 
 
         addControl(generationSize, 1);
@@ -106,6 +119,10 @@ public class GUI {
         addControl(lolzThreshold, 1);
         addControl(tournamentGroupSize, 1);
         addControl(tournamentProbability, 1);
+        addControl(surprisingSize, 1);
+        addControl(surprisingLocal, 1);
+        addControl(chartsCheckbox, 1);
+        addControl(consoleCheckbox, 1);
 
 
         charts = new Charts();
@@ -126,6 +143,7 @@ public class GUI {
                 case 0:
                     Constants.GENERATION_SIZE = value.intValue();
                     Constants.PARENTS_SIZE = Constants.GENERATION_SIZE - Constants.ELITISM_SIZE;
+                    Constants.ELITISM_SIZE = (int) (Constants.GENERATION_SIZE*0.05);
                     break;
                 case 1:
                     Constants.ADULTS_SIZE = value.intValue();
@@ -148,7 +166,14 @@ public class GUI {
                     Constants.BITSIZE = value.intValue();
                     break;
                 case 8:
-                    Constants.LOLZ_THRESHOLD = value.intValue();
+                    if (Constants.BITSIZE < Constants.LOLZ_THRESHOLD || Constants.BITSIZE < value.intValue()){
+                        Constants.LOLZ_THRESHOLD = Constants.BITSIZE-1;
+                    } else {
+                        Constants.LOLZ_THRESHOLD = value.intValue();
+                    }
+                    break;
+                case 9:
+                    Constants.SUPRISING_SYMBOL_SIZE = value.intValue();
                     break;
             }
         }

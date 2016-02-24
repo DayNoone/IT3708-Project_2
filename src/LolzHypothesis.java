@@ -1,16 +1,19 @@
-public class LolzHypothesis extends OneMaxHypothesis {
+public class LolzHypothesis extends Hypothesis {
     public LolzHypothesis(int[] parentGenotype){
         super(parentGenotype);
     }
     public LolzHypothesis() {
-        super();
+        for (int i = 0; i < Constants.BITSIZE; i++){
+            genotype[i] = random.nextInt(2);
+        }
+        this.phenotype = new int[Constants.BITSIZE];
     }
-    @Override
+
     public void calculateFitness() {
         int firstNumber = getPhenotype()[0];
         double tempFitness = 1.0;
 
-        for (int i = 1; i < getPhenotype().length; i++) {
+        for (int i = 1; i < Constants.BITSIZE; i++) {
             if (firstNumber == 0 && i + 1 > Constants.LOLZ_THRESHOLD){
                 break;
             }
@@ -20,7 +23,7 @@ public class LolzHypothesis extends OneMaxHypothesis {
                 break;
             }
         }
-        fitness = (tempFitness/getPhenotype().length);
+        this.fitness = (tempFitness/getPhenotype().length);
     }
     public void calculateFitness2(){
         double leadingBit = getPhenotype()[0];

@@ -1,12 +1,15 @@
 public class Constants {
+
+    public static boolean GLOBAL = true;
     // Problem spesific
     public static int BITSIZE = 40;
     public static int LOLZ_THRESHOLD = 30;
+    public static int SUPRISING_SYMBOL_SIZE = 10;
 
     // Population size
-    public static int GENERATION_SIZE = 40;
-    public static int ADULTS_SIZE = 20;
-    public static final int ELITISM_SIZE = (int) (GENERATION_SIZE*0.05);
+    public static int GENERATION_SIZE = 100;
+    public static int ADULTS_SIZE = 60;
+    public static int ELITISM_SIZE = (int) (GENERATION_SIZE*0.05);
     public static int PARENTS_SIZE = GENERATION_SIZE - ELITISM_SIZE;
 
     // Reproduction
@@ -20,8 +23,8 @@ public class Constants {
     public static int TOURNAMENT_GROUP_SIZE = 5;
     public static double TOURNAMENT_PROBABILITY = 0.5;
 
-    public static adultSelection ADULT_SELECTION = adultSelection.FULL_GENERATION;
-    public static parentSelection PARENT_SELECTION = parentSelection.FITNESS_PROPORTIONATE;
+    public static adultSelection ADULT_SELECTION = adultSelection.GENERATIONAL_MIXING;
+    public static parentSelection PARENT_SELECTION = parentSelection.SIGMA_SCALING;
 
     public enum adultSelection{
         FULL_GENERATION, OVER_PRODUCTION, GENERATIONAL_MIXING;
@@ -37,6 +40,9 @@ public class Constants {
     // GUI
     public static final double SCENE_HEIGHT = 1000;
     public static final double SCENE_WIDTH = 1500;
+
+    public static boolean CHARTS = true;
+    public static boolean CONSOLE = false;
 
     public static double GUI_BUTTON_WIDTH = 400;
     public static double GUI_BUTTON_HEIGHT = 100;
