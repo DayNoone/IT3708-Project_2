@@ -10,15 +10,6 @@ public class OneMaxHypothesis extends Hypothesis {
     public OneMaxHypothesis(){
         super();
     }
-    /*public void calculateFitness2(){
-        double rightCount = 0;
-        for (int i = 0; i < phenotype.length; i++){
-            if(phenotype[i] == targetBitstring[i]){
-                rightCount++;
-            }
-        }
-        this.fitness = rightCount / phenotype.length;
-    }*/
 
     public void development(){
         this.phenotype = this.genotype;
