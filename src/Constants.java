@@ -1,6 +1,6 @@
 public class Constants {
 
-    public static boolean GLOBAL = true;
+    public static boolean GLOBAL = false;
     // Problem spesific
     public static int BITSIZE = 40;
     public static int LOLZ_THRESHOLD = 21;
@@ -17,14 +17,14 @@ public class Constants {
     public static boolean CROSSOVER = true;
     public static double MUTATION_RATE = 0.01;
     public static double MUTATION_RATE_ALL = 0.01;
-    public static double CROSSOVER_RATE = 0.8;
+    public static double CROSSOVER_RATE = 0.9;
 
     // Parent selection
     public static int TOURNAMENT_GROUP_SIZE = 5;
     public static double TOURNAMENT_PROBABILITY = 0.5;
 
-    public static adultSelection ADULT_SELECTION = adultSelection.FULL_GENERATION;
-    public static parentSelection PARENT_SELECTION = parentSelection.FITNESS_PROPORTIONATE;
+    public static adultSelection ADULT_SELECTION = adultSelection.GENERATIONAL_MIXING;
+    public static parentSelection PARENT_SELECTION = parentSelection.SIGMA_SCALING;
 
     public enum adultSelection{
         FULL_GENERATION, OVER_PRODUCTION, GENERATIONAL_MIXING;
@@ -41,7 +41,7 @@ public class Constants {
     public static final double SCENE_HEIGHT = 1000;
     public static final double SCENE_WIDTH = 1500;
 
-    public static boolean CHARTS = true;
+    public static boolean CHARTS = false;
     public static boolean CONSOLE = false;
 
     public static double GUI_BUTTON_WIDTH = 400;
